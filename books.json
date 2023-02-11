@@ -1,0 +1,19 @@
+{
+  "books": [
+    {
+      "title": "The Great Gatsby",
+      "author": "F. Scott Fitzgerald",
+      "summary": "The story primarily concerns the young and mysterious millionaire Jay Gatsby and his quixotic passion and obsession with the beautiful former debutante Daisy Buchanan."
+    },
+    {
+      "title": "The Catcher in the Rye",
+      "author": "J. D. Salinger",
+      "summary": "The story is told in the first person by Holden Caulfield, a cynical teenager who recently has been expelled from prep school."
+    },
+    {
+      "title": "The Grapes of Wrath",
+      "author": "John Steinbeck",
+      "summary": "The novel tells the story of the Joad family, who are driven from their Oklahoma homestead and forced to travel west to the promised land of California."
+    }
+  ]
+}

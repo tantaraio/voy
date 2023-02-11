@@ -1,4 +1,5 @@
-mod utils;
+mod document;
+mod engine;
 
 use wasm_bindgen::prelude::*;
 
@@ -9,11 +10,7 @@ use wasm_bindgen::prelude::*;
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 #[wasm_bindgen]
-extern {
-    fn alert(s: &str);
-}
+pub fn index() {}
 
 #[wasm_bindgen]
-pub fn greet() {
-    alert("Hello, voy!");
-}
+pub fn search() {}
