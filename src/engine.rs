@@ -1,19 +1,19 @@
-use crate::document::Document;
+use crate::Input;
 use kd_tree::{ItemAndDistance, KdPoint, KdTree, KdTreeN};
-use rust_bert::pipelines::sentence_embeddings::{
-    SentenceEmbeddingsBuilder, SentenceEmbeddingsModelType,
-};
-use std::convert::TryInto;
+use serde::{Deserialize, Serialize};
 use typenum::U2;
 
-pub type Embeddings = [f32; 384];
-
-pub type Embedded<'a> = (&'a Document, Embeddings);
-
+#[derive(Serialize, Deserialize, Debug)]
 pub struct EmbeddedDocument {
     id: String,
+    title: String,
+    url: String,
     body: String,
-    embeddings: Embeddings,
+    embeddings: Vec<f32>,
+}
+
+pub enum Query {
+    Embeddings(Vec<f32>),
 }
 
 impl KdPoint for EmbeddedDocument {
@@ -26,25 +26,26 @@ impl KdPoint for EmbeddedDocument {
 
 pub type Index = KdTreeN<EmbeddedDocument, U2>;
 
-pub fn index(documents: &[Document]) -> anyhow::Result<Index> {
-    let model = SentenceEmbeddingsBuilder::remote(SentenceEmbeddingsModelType::AllMiniLmL12V2)
-        .create_model()?;
-    let inputs: Vec<String> = documents.iter().map(|doc| doc.to_owned().body).collect();
-    let encoded = model.encode(&inputs)?;
-    let embeddings: Vec<Embeddings> = encoded.iter().map(|x| to_sized(x)).collect();
-
-    let data: Vec<EmbeddedDocument> = documents
+pub fn index(input: Input) -> anyhow::Result<Index> {
+    let data: Vec<EmbeddedDocument> = input
+        .embeddings
         .into_iter()
-        .zip(embeddings.into_iter())
-        .map(|(doc, emb)| EmbeddedDocument {
-            id: doc.to_owned().id,
-            body: doc.to_owned().body,
-            embeddings: emb,
+        .map(|emb| EmbeddedDocument {
+            id: emb.id,
+            title: emb.title,
+            body: "".to_owned(),
+            url: emb.url,
+            embeddings: emb.embdeddings,
         })
         .collect();
 
     let index = KdTree::build_by(data, |a, b, k| {
-        a.embeddings[k].partial_cmp(&b.embeddings[k]).unwrap()
+        a.embeddings
+            .clone()
+            .into_iter()
+            .nth(k)
+            .partial_cmp(&b.embeddings.clone().into_iter().nth(k))
+            .unwrap()
     });
 
     Ok(index)
@@ -52,66 +53,64 @@ pub fn index(documents: &[Document]) -> anyhow::Result<Index> {
 
 pub fn search<'a>(
     index: &'a Index,
-    query: &'a str,
+    query: Query,
     k: usize,
 ) -> anyhow::Result<Vec<ItemAndDistance<'a, EmbeddedDocument, f32>>> {
-    let model = SentenceEmbeddingsBuilder::remote(SentenceEmbeddingsModelType::AllMiniLmL12V2)
-        .create_model()?;
-    let query = model.encode(&[query])?;
-    let query = query
-        .into_iter()
-        .map(|x| to_sized(&x))
-        .map(|embeddings| EmbeddedDocument {
-            id: "".to_owned(),
-            body: "".to_owned(),
-            embeddings,
-        })
-        .next()
-        .unwrap();
+    let query: Vec<f32> = match query {
+        Query::Embeddings(q) => q,
+        _ => vec![],
+    };
+    let query = EmbeddedDocument {
+        id: "".to_owned(),
+        title: "".to_owned(),
+        url: "".to_owned(),
+        body: "".to_owned(),
+        embeddings: query,
+    };
     let nearests = index.nearests(&query, k);
 
     Ok(nearests)
 }
 
-fn to_sized(arr: &[f32]) -> Embeddings {
-    arr.try_into()
-        .expect("Unable to apply fixed size to slice.")
-}
-
 #[cfg(test)]
 mod tests {
-    use crate::document::Document;
-
-    use super::{index, search};
+    use super::{index, search, Query};
+    use crate::{Embedding, Input};
 
     #[test]
     fn it_works() {
-        let documents: Vec<Document> = vec![
-            Document {id: "1".to_owned(), body: "Is Qwik Faster than React Server Component?".to_owned()},
-            Document {id: "2".to_owned(), body: "Tired of Slow Code Reviews? Read this".to_owned()},
-            Document {id: "3".to_owned(), body: "Deploying Like Vercel and Netlify with Cloud Run: Live, Preview, and Modern Workflow".to_owned()},
-            Document {id: "4".to_owned(), body: "Easiest Way to Understand Rust Modules Across Multiple Files".to_owned()},
-            Document {id: "5".to_owned(), body: "Ex-Principal Engineer's Guide to Design Thinking and Continuous Delivery".to_owned()},
-            Document {id: "6".to_owned(), body: "Building A Custom Google Maps Marker React Component Like Airbnb in Next.js".to_owned()},
-            Document {id: "7".to_owned(), body: "Event Bus for React".to_owned()},
-            Document {id: "8".to_owned(), body: "React Explained for Product Managers".to_owned()},
-            Document {id: "9".to_owned(), body: "Stress Testing Concurrent Features in React 18: A Case Study of startTransition & 3D Rendering".to_owned()},
-            Document {id: "10".to_owned(), body: "I Built A Snappy Static Full-text Search with WebAssembly, Rust, Next.js, and Xor Filters".to_owned()},
-        ];
-        let query = "is react fast";
-        let index = index(&documents).unwrap();
-        let result = search(&index, query, 5).unwrap();
+        let input: Input = Input {
+            embeddings: vec![
+                Embedding {
+                    id: "abd".to_owned(),
+                    title: "That is a very happy Person".to_owned(),
+                    url: "/path/to/one".to_owned(),
+                    embdeddings: vec![1.0, 2.0, 3.0],
+                },
+                Embedding {
+                    id: "abd".to_owned(),
+                    title: "That is a Happy Dog".to_owned(),
+                    url: "/path/to/two".to_owned(),
+                    embdeddings: vec![3.0, 1.0, 2.0],
+                },
+                Embedding {
+                    id: "abd".to_owned(),
+                    title: "Today is a sunny day".to_owned(),
+                    url: "/path/to/three".to_owned(),
+                    embdeddings: vec![2.0, 3.0, 1.0],
+                },
+            ],
+        };
 
-        let expected = vec![
-            "1".to_owned(),
-            "7".to_owned(),
-            "8".to_owned(),
-            "9".to_owned(),
-            "10".to_owned(),
-        ];
+        let index = index(input).unwrap();
 
-        result.iter().map(|x| &x.item.id).for_each(|x| {
-            assert_eq!(expected.contains(&x), true);
-        });
+        let query = Query::Embeddings(vec![3.1, 0.9, 2.1]);
+
+        let result = search(&index, query, 1).unwrap();
+
+        assert_eq!(
+            result.into_iter().nth(0).unwrap().item.title,
+            "That is a Happy Dog",
+        );
     }
 }
