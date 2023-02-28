@@ -59,4 +59,6 @@ pub fn index(input: JsValue) -> JsValue {
 }
 
 #[wasm_bindgen]
-pub fn search(index: JsValue) {}
+pub fn search() {
+    console_log!("search!")
+}

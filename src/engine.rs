@@ -78,7 +78,7 @@ mod tests {
     use crate::{Embedding, Input};
 
     #[test]
-    fn it_works() {
+    fn it_indexes_embeddings_and_returns_search_result() {
         let input: Input = Input {
             embeddings: vec![
                 Embedding {
