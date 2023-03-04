@@ -9,13 +9,13 @@
 
 ```bash
 # with npm
-npm i voy
+npm i voy-search
 
 # with Yarn
-yarn add voy
+yarn add voy-search
 
 # with pnpm
-pnpm add voy
+pnpm add voy-search
 ```
 
 ## APIs

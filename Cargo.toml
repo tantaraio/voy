@@ -1,8 +1,16 @@
 [package]
-name = "voy"
+name = "voy-search"
 version = "0.1.0"
 authors = ["Daw-Chih Liou <dawochih.liou@gmail.com>"]
 edition = "2018"
+description = "a vector similarity search engine in WASM"
+documentation = "https://github.com/tantaraio/voy#readme"
+readme = "https://github.com/tantaraio/voy#readme"
+homepage = "https://github.com/tantaraio/voy"
+repository = "https://github.com/tantaraio/voy"
+license = "MIT OR Apache 2.0"
+keywords = ["webassembly", "wasm", "rust", "kd-tree", "embeddings", "vector search", "similarity search", "nearest neighbor"]
+
 
 [lib]
 crate-type = ["cdylib", "rlib"]

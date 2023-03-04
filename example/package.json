@@ -1,7 +1,7 @@
 {
-  "name": "create-wasm-app",
+  "name": "voy-search",
   "version": "0.1.0",
-  "description": "create an app to consume rust-generated wasm packages",
+  "description": "a vector similarity search engine in WASM",
   "main": "index.js",
   "bin": {
     "create-wasm-app": ".bin/create-wasm-app.js"
@@ -18,14 +18,18 @@
     "webassembly",
     "wasm",
     "rust",
-    "webpack"
+    "kd-tree",
+    "embeddings",
+    "vector search",
+    "similarity search",
+    "nearest neighbor"
   ],
-  "author": "Ashley Williams <ashley666ashley@gmail.com>",
+  "author": "Daw-Chih <dawochih.iou@gmail.com>",
   "license": "(MIT OR Apache-2.0)",
   "bugs": {
-    "url": "https://github.com/rustwasm/create-wasm-app/issues"
+    "url": "https://github.com/tantaraio/voy"
   },
-  "homepage": "https://github.com/rustwasm/create-wasm-app#readme",
+  "homepage": "https://github.com/tantaraio/voy#readme",
   "dependencies": {
     "@visheratin/web-ai": "^0.4.9",
     "jimp": "^0.22.7",
