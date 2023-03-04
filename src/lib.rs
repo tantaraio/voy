@@ -2,7 +2,7 @@ mod document;
 mod engine;
 
 use serde::{Deserialize, Serialize};
-use serde_wasm_bindgen::from_value;
+use serde_wasm_bindgen::{from_value, to_value, Error};
 use wasm_bindgen::prelude::*;
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
@@ -48,17 +48,34 @@ pub struct Input {
 }
 
 #[wasm_bindgen]
-pub fn index(input: JsValue) -> JsValue {
+pub fn index(input: JsValue) -> String {
+    console_error_panic_hook::set_once();
+
     let input: Input = from_value(input).unwrap();
     let index = engine::index(input);
 
     match index {
-        Ok(tree) => JsValue::from(serde_json::to_string(&tree).unwrap()),
-        _ => JsValue::default(),
+        Ok(tree) => serde_json::to_string(&tree).unwrap(),
+        _ => "".to_owned(),
     }
 }
 
 #[wasm_bindgen]
-pub fn search() {
-    console_log!("search!")
+pub fn search(index: &str, query: JsValue, k: usize) -> Result<JsValue, JsValue> {
+    console_error_panic_hook::set_once();
+
+    let index: engine::Index = serde_json::from_str(index).unwrap();
+
+    let query: Result<Vec<f32>, Error> = from_value(query);
+    let query: engine::Query = match query {
+        Ok(q) => engine::Query::Embeddings(q),
+        _ => {
+            console_log!("unable to cast query");
+            engine::Query::Embeddings(vec![])
+        }
+    };
+
+    let result = engine::search(&index, &query, k).unwrap();
+
+    Ok(to_value(&result)?)
 }

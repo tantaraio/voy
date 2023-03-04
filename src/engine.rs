@@ -1,17 +1,21 @@
 use crate::Input;
-use kd_tree::{ItemAndDistance, KdPoint, KdTree, KdTreeN};
+use kd_tree::{KdPoint, KdTree, KdTreeN};
 use serde::{Deserialize, Serialize};
 use typenum::U2;
+use wasm_bindgen::JsCast;
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct EmbeddedDocument {
-    id: String,
-    title: String,
-    url: String,
-    body: String,
-    embeddings: Vec<f32>,
+    pub id: String,
+    pub title: String,
+    pub url: String,
+    pub body: String,
+    pub embeddings: Vec<f32>,
 }
 
+// impl JsCast for EmbeddedDocument {}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum Query {
     Embeddings(Vec<f32>),
 }
@@ -53,12 +57,11 @@ pub fn index(input: Input) -> anyhow::Result<Index> {
 
 pub fn search<'a>(
     index: &'a Index,
-    query: Query,
+    query: &'a Query,
     k: usize,
-) -> anyhow::Result<Vec<ItemAndDistance<'a, EmbeddedDocument, f32>>> {
+) -> anyhow::Result<Vec<EmbeddedDocument>> {
     let query: Vec<f32> = match query {
-        Query::Embeddings(q) => q,
-        _ => vec![],
+        Query::Embeddings(q) => q.to_owned(),
     };
     let query = EmbeddedDocument {
         id: "".to_owned(),
@@ -67,7 +70,11 @@ pub fn search<'a>(
         body: "".to_owned(),
         embeddings: query,
     };
-    let nearests = index.nearests(&query, k);
+    let nearests: Vec<EmbeddedDocument> = index
+        .nearests(&query, k)
+        .into_iter()
+        .map(|x| x.item.to_owned())
+        .collect();
 
     Ok(nearests)
 }
@@ -106,10 +113,10 @@ mod tests {
 
         let query = Query::Embeddings(vec![3.1, 0.9, 2.1]);
 
-        let result = search(&index, query, 1).unwrap();
+        let result = search(&index, &query, 1).unwrap();
 
         assert_eq!(
-            result.into_iter().nth(0).unwrap().item.title,
+            result.into_iter().nth(0).unwrap().title,
             "That is a Happy Dog",
         );
     }
