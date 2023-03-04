@@ -65,6 +65,45 @@ type Nearests = Array<{
 }>;
 ```
 
+## Usage
+
+As of now, voy rely on libraries like [`web-ai`][web-ai] to generate embeddings for text:
+
+```js
+import { TextModel } from "@visheratin/web-ai";
+import { index, search } from "voy";
+
+const phrases = [
+  "That is a very happy Person",
+  "That is a Happy Dog",
+  "Today is a sunny day",
+];
+const query = "That is a happy person";
+
+// Create text embeddings
+const model = await (await TextModel.create("gtr-t5-quant")).model;
+const processed = await Promise.all(phrases.map((q) => model.process(q)));
+
+// Index embeddings with voy
+const data = processed.map(({ result }, i) => ({
+  id: String(i),
+  title: phrases[i],
+  url: `/path/${i}`,
+  embeddings: result,
+}));
+const input = { embeddings: data };
+const index = voy.index(input);
+
+// Perform similarity search for a query embeddings
+const q = await model.process(query);
+const nearests = voy.search(index, q.result, 1);
+
+// Display search result
+nearests.forEach((result) =>
+  console.log(`✨ voy similarity search result: "${result.title}"`)
+);
+```
+
 ## License
 
 Licensed under either of
@@ -82,3 +121,4 @@ license, shall be dual licensed as above, without any additional terms or
 conditions.
 
 [demo]: ./voy.gif "voy demo"
+[web-ai]: https://github.com/visheratin/web-ai
