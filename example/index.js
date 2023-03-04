@@ -1,3 +1,15 @@
+const append = (box) => (str) => {
+  const para = document.createElement("p");
+  const text = document.createTextNode(str);
+
+  para.appendChild(text);
+  box.appendChild(para);
+};
+
+const container = document.querySelector("#example");
+
+const log = append(container);
+
 const wasm = import("voy");
 
 const input = {
@@ -24,10 +36,27 @@ const input = {
 };
 const query = [3.1, 0.9, 2.1];
 
-wasm.then((voy) => {
-  console.log("🦀 voy", voy);
-  const index = voy.index(input);
-  console.log("🦀 Index", index);
-  const result = voy.search(index, query, 1);
-  console.log("🦀 Result", result);
-});
+log("🎉 Welcome to voy...");
+
+log(
+  `🖥️ Search for [${query.toString()}]'s the nearest embeddings...`,
+  container
+);
+
+wasm
+  .then((voy) => {
+    log(`🕸️ Voy is loaded...`);
+    return voy;
+  })
+  .then((voy) => {
+    const index = voy.index(input);
+
+    log(`🕸️ Voy Index 👉 ${index.toString()}`);
+
+    const results = voy.search(index, query, 1);
+
+    results.forEach((result) =>
+      log(`🕸️ Voy Result 👉 [${result.embeddings}]: ${result.title}`)
+    );
+  })
+  .then(() => log("✨ Done"));

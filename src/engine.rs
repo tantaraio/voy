@@ -2,7 +2,6 @@ use crate::Input;
 use kd_tree::{KdPoint, KdTree, KdTreeN};
 use serde::{Deserialize, Serialize};
 use typenum::U2;
-use wasm_bindgen::JsCast;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct EmbeddedDocument {

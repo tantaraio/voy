@@ -11,28 +11,6 @@ use wasm_bindgen::prelude::*;
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
-#[wasm_bindgen]
-extern "C" {
-    // Use `js_namespace` here to bind `console.log(..)` instead of just
-    // `log(..)`
-    #[wasm_bindgen(js_namespace = console)]
-    fn log(s: &str);
-
-    // The `console.log` is quite polymorphic, so we can bind it with multiple
-    // signatures. Note that we need to use `js_name` to ensure we always call
-    // `log` in JS.
-    #[wasm_bindgen(js_namespace = console, js_name = log)]
-    fn log_u32(a: u32);
-
-    // Multiple arguments too!
-    #[wasm_bindgen(js_namespace = console, js_name = log)]
-    fn log_many(a: &str, b: &str);
-}
-
-macro_rules! console_log {
-    ($($t:tt)*) => (log(&format_args!($($t)*).to_string()))
-}
-
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Embedding {
     id: String,
@@ -69,10 +47,7 @@ pub fn search(index: &str, query: JsValue, k: usize) -> Result<JsValue, JsValue>
     let query: Result<Vec<f32>, Error> = from_value(query);
     let query: engine::Query = match query {
         Ok(q) => engine::Query::Embeddings(q),
-        _ => {
-            console_log!("unable to cast query");
-            engine::Query::Embeddings(vec![])
-        }
+        _ => engine::Query::Embeddings(vec![]),
     };
 
     let result = engine::search(&index, &query, k).unwrap();
