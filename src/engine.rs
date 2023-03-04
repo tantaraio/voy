@@ -38,7 +38,7 @@ pub fn index(input: Input) -> anyhow::Result<Index> {
             title: emb.title,
             body: "".to_owned(),
             url: emb.url,
-            embeddings: emb.embdeddings,
+            embeddings: emb.embeddings,
         })
         .collect();
 
@@ -91,19 +91,19 @@ mod tests {
                     id: "abd".to_owned(),
                     title: "That is a very happy Person".to_owned(),
                     url: "/path/to/one".to_owned(),
-                    embdeddings: vec![1.0, 2.0, 3.0],
+                    embeddings: vec![1.0, 2.0, 3.0],
                 },
                 Embedding {
                     id: "abd".to_owned(),
                     title: "That is a Happy Dog".to_owned(),
                     url: "/path/to/two".to_owned(),
-                    embdeddings: vec![3.0, 1.0, 2.0],
+                    embeddings: vec![3.0, 1.0, 2.0],
                 },
                 Embedding {
                     id: "abd".to_owned(),
                     title: "Today is a sunny day".to_owned(),
                     url: "/path/to/three".to_owned(),
-                    embdeddings: vec![2.0, 3.0, 1.0],
+                    embeddings: vec![2.0, 3.0, 1.0],
                 },
             ],
         };

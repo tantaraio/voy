@@ -27,6 +27,8 @@
   },
   "homepage": "https://github.com/rustwasm/create-wasm-app#readme",
   "dependencies": {
+    "@visheratin/web-ai": "^0.4.9",
+    "jimp": "^0.22.7",
     "voy": "file:../pkg"
   },
   "devDependencies": {

@@ -16,7 +16,7 @@ pub struct Embedding {
     id: String,
     title: String,
     url: String,
-    embdeddings: Vec<f32>,
+    embeddings: Vec<f32>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

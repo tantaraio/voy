@@ -1,62 +1,51 @@
-const append = (box) => (str) => {
-  const para = document.createElement("p");
-  const text = document.createTextNode(str);
+import { TextModel } from "@visheratin/web-ai";
+import { log } from "./log";
 
-  para.appendChild(text);
-  box.appendChild(para);
+const phrases = [
+  "That is a very happy Person",
+  "That is a Happy Dog",
+  "Today is a sunny day",
+];
+
+const query = "That is a happy person";
+
+const main = async () => {
+  log("🎉 Welcome to voy");
+  log("🕸️ Loading voy ...");
+
+  // Loading voy WebAssembly module asynchronously
+  const voy = await import("voy");
+
+  log(`🕸️ voy is loaded ✔️ ...`);
+  log(`🕸️ voy is indexing [ ${phrases.map((p) => `"${p}"`).join(", ")} ] ...`);
+
+  // Create text embeddings
+  const model = await (await TextModel.create("gtr-t5-quant")).model;
+  const processed = await Promise.all(phrases.map((q) => model.process(q)));
+
+  // Index embeddings with voy
+  const data = processed.map(({ result }, i) => ({
+    id: String(i),
+    title: phrases[i],
+    url: `/path/${i}`,
+    embeddings: result,
+  }));
+  const input = { embeddings: data };
+  const index = voy.index(input);
+
+  log(`🕸️ voy is indexed ✔️ ...`);
+  log(`🕸️ voy is searching for the nearest neighbor for "${query}" ...`);
+
+  // Perform similarity search for a query embeddings
+  const q = await model.process(query);
+  const nearests = voy.search(index, q.result, 1);
+
+  // Display search result
+  nearests.forEach((result) =>
+    log(`🕸️ voy similarity search result 👉 "${result.title}"`)
+  );
+
+  log("✨ Done");
 };
 
-const container = document.querySelector("#example");
-
-const log = append(container);
-
-const wasm = import("voy");
-
-const input = {
-  embeddings: [
-    {
-      id: "abc9821",
-      title: "That is a very happy Person",
-      url: "/path/to/one",
-      embdeddings: [1.0, 2.0, 3.0],
-    },
-    {
-      id: "def1092",
-      title: "That is a Happy Dog",
-      url: "/path/to/two",
-      embdeddings: [3.0, 1.0, 2.0],
-    },
-    {
-      id: "ghi1234",
-      title: "Today is a sunny day",
-      url: "/path/to/three",
-      embdeddings: [2.0, 3.0, 1.0],
-    },
-  ],
-};
-const query = [3.1, 0.9, 2.1];
-
-log("🎉 Welcome to voy...");
-
-log(
-  `🖥️ Search for [${query.toString()}]'s the nearest embeddings...`,
-  container
-);
-
-wasm
-  .then((voy) => {
-    log(`🕸️ Voy is loaded...`);
-    return voy;
-  })
-  .then((voy) => {
-    const index = voy.index(input);
-
-    log(`🕸️ Voy Index 👉 ${index.toString()}`);
-
-    const results = voy.search(index, query, 1);
-
-    results.forEach((result) =>
-      log(`🕸️ Voy Result 👉 [${result.embeddings}]: ${result.title}`)
-    );
-  })
-  .then(() => log("✨ Done"));
+main();
