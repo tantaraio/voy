@@ -15,9 +15,9 @@
 >
 > voy is still in development. We are working on:
 >
-> - Built-in text transformation in WebAssembly: voy relies on JavaScript libraries like [`web-ai`][web-ai] to generate text embeddings.
-> - Index update: Currently it's required to re-build the index when a resource update occurs.
-> - TypeScript support: Due to the limitation of WASM tooling, complex data types are not auto-generated.
+> - [ ] Built-in text transformation in WebAssembly: As of now, voy relies on JavaScript libraries like [`web-ai`][web-ai] to generate text embeddings. See [Usage](#usage) for more detail.
+> - [ ] Index update: Currently it's required to [re-build the index](#indexinput-resource-serializedindex) when a resource update occurs.
+> - [ ] TypeScript support: Due to the limitation of WASM tooling, complex data types are not auto-generated.
 
 ## Installation
 
