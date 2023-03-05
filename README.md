@@ -1,4 +1,4 @@
-<div align="center">
+<div align="center" style="margin-bottom:32px">
   <h1>Voy</h1>
   <strong>A vector similarity search engine in WASM</strong>
 </div>
