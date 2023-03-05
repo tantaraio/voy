@@ -1,10 +1,23 @@
 <div align="center">
   <h1>Voy</h1>
-  <strong>A vector similarity search engine in WASM</strong>
-  <br />
+  <strong>A WASM vector similarity search engine written in Rust</strong>
 </div>
 
 ![voy: a vector similarity search engine in WebAssembly][demo]
+
+[![npm version](https://badge.fury.io/js/voy-search.svg)](https://badge.fury.io/js/voy-search)
+
+- Tiny: 75KB gzipped, 69KB brotli
+- Fast: voy uses [k-d tree][k-d-tree] to index and provide fast search
+- Tree Shakable: built with performance optimization in mind
+
+> **🚜 Work in Progress**
+>
+> voy is still in development. We are working on:
+>
+> - Built-in text transformation in WebAssembly: voy relies on JavaScript libraries like [`web-ai`][web-ai] to generate text embeddings.
+> - Index update: Currently it's required to re-build the index when a resource update occurs.
+> - TypeScript support: Due to the limitation of WASM tooling, complex data types are not auto-generated.
 
 ## Installation
 
@@ -68,7 +81,7 @@ type Nearests = Array<{
 
 ## Usage
 
-As of now, voy rely on libraries like [`web-ai`][web-ai] to generate embeddings for text:
+As of now, voy relies on libraries like [`web-ai`][web-ai] to generate embeddings for text:
 
 ```js
 import { TextModel } from "@visheratin/web-ai";
@@ -128,3 +141,4 @@ conditions.
 
 [demo]: ./voy.gif "voy demo"
 [web-ai]: https://github.com/visheratin/web-ai
+[k-d-tree]: https://en.wikipedia.org/wiki/K-d_tree
