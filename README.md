@@ -1,6 +1,7 @@
-<div align="center" style="margin-bottom:32px">
+<div align="center">
   <h1>Voy</h1>
   <strong>A vector similarity search engine in WASM</strong>
+  <br />
 </div>
 
 ![voy: a vector similarity search engine in WebAssembly][demo]
