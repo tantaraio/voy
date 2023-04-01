@@ -1,0 +1,23 @@
+.ul {
+    display: block;
+
+    margin-left: 0;
+    padding-left: 0;
+}
+
+.ul li {
+    display: inline;
+}
+
+.ul li a {
+    text-decoration: none;
+    color: #fff;
+    background-color: rgb(55, 55, 60);
+    padding: 1rem 1rem;
+    border-radius: 0.5rem;
+    box-shadow: rgba(0, 0, 0, 0.25) 0px 25px 50px -12px;
+    font-weight: bold;
+    font-family: Arial;
+    margin: 0.1rem;
+
+}

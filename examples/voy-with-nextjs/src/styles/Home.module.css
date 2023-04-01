@@ -1,0 +1,13 @@
+#example {
+  display: block;
+  width: 100%;
+}
+
+.primary {
+  font-weight: bold;
+}
+
+.secondary {
+  font-weight: 100;
+  color: gray;
+}
