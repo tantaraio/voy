@@ -86,7 +86,7 @@ As of now, voy relies on libraries like [`web-ai`][web-ai] to generate embedding
 ```js
 import { TextModel } from "@visheratin/web-ai";
 
-const voy = await import("voy");
+const voy = await import("voy-search");
 
 const phrases = [
   "That is a very happy Person",
