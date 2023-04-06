@@ -9,9 +9,9 @@
 
 - **Tiny**: 75KB gzipped, 69KB brotli.
 - **Fast**: Create the best search experience for the users. Voy uses [k-d tree][k-d-tree] to index and provide fast search
-- **Tree Shackable**: Optimize bundle size and enable asynchronous capabilities for modern Web API, such as [Web Workers](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers).
+- **Tree Shakable**: Optimize bundle size and enable asynchronous capabilities for modern Web API, such as [Web Workers](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers).
 - **Resumable**: Generate portable embeddings index anywhere, anytime.
-- **Edgy**: Designed to deploy and run on CDN edge servers.
+- **Worldwide**: Designed to deploy and run on CDN edge servers.
 
 > **🚜 Work in Progress**
 >
