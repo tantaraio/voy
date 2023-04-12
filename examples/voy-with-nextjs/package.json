@@ -1,0 +1,32 @@
+{
+  "name": "voy-with-nextjs",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@tensorflow-models/universal-sentence-encoder": "1.3.1",
+    "@tensorflow/tfjs": "^4.2.0",
+    "@tensorflow/tfjs-converter": "^2.0.1",
+    "@tensorflow/tfjs-core": "^4.2.0",
+    "@tensorflow/tfjs-node": "^4.2.0",
+    "@types/node": "18.15.11",
+    "@types/react": "18.0.31",
+    "@types/react-dom": "18.0.11",
+    "@visheratin/web-ai": "^0.7.4",
+    "jimp": "^0.22.7",
+    "next": "13.2.4",
+    "node-localstorage": "^2.2.1",
+    "raw-loader": "^4.0.2",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-markdown": "^8.0.6",
+    "rehype-raw": "^6.1.1",
+    "typescript": "5.0.3",
+    "voy-search": "file:../../pkg"
+  }
+}
