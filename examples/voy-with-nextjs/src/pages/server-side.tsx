@@ -15,27 +15,27 @@ export default function ServerSide() {
   const [results, setResults] = useState<any[]>([]);
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/embeddings`).then(
-      async (res) => {
-        const { embeddings } = await res.json();
-        setEmbeddings(embeddings);
-      }
-    );
+    fetch("/api/embeddings")
+      .then((res) => res.json())
+      .then((result) => {
+        setEmbeddings(result.embeddings);
+      });
   }, []);
 
   const onSubmit = useCallback(() => {
     if (inputRef.current?.value) {
       setResults([]);
-      fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/process`, {
+      fetch("/api/process", {
         method: "POST",
         body: JSON.stringify({
           embeddings,
           searchQuery: inputRef.current?.value,
         }),
-      }).then(async (res) => {
-        const { nearests } = await res.json();
-        setResults(nearests);
-      });
+      })
+        .then((res) => res.json())
+        .then((result) => {
+          setResults(result.neighbors);
+        });
     }
   }, [embeddings]);
 

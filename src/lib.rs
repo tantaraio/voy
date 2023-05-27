@@ -2,7 +2,7 @@ mod document;
 mod engine;
 
 use serde::{Deserialize, Serialize};
-use serde_wasm_bindgen::{from_value, to_value, Error};
+use tsify::Tsify;
 use wasm_bindgen::prelude::*;
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
@@ -11,26 +11,48 @@ use wasm_bindgen::prelude::*;
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
-#[derive(Serialize, Deserialize, Debug)]
-pub struct Embedding {
-    id: String,
-    title: String,
-    url: String,
-    embeddings: Vec<f32>,
+type NumberOfResult = usize;
+type Query = Vec<f32>;
+type SerializedIndex = String;
+
+#[derive(Serialize, Deserialize, Debug, Clone, Tsify)]
+#[tsify(into_wasm_abi, from_wasm_abi)]
+pub struct EmbeddedResource {
+    pub id: String,
+    pub title: String,
+    pub url: String,
+    pub embeddings: Vec<f32>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
-pub struct Input {
+#[derive(Serialize, Deserialize, Debug, Tsify)]
+#[tsify(into_wasm_abi, from_wasm_abi)]
+pub struct Resource {
+    // TODO: Support different type of resources
     // pub documents: Vec<Document>,
-    pub embeddings: Vec<Embedding>,
+    // pub audio: Vec<Audio>,
+    // pub video: Vec<Video>,
+    pub embeddings: Vec<EmbeddedResource>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, Tsify)]
+#[tsify(into_wasm_abi)]
+pub struct Neighbor {
+    pub id: String,
+    pub title: String,
+    pub url: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, Tsify)]
+#[tsify(into_wasm_abi, from_wasm_abi)]
+pub struct SearchResult {
+    neighbors: Vec<Neighbor>,
 }
 
 #[wasm_bindgen]
-pub fn index(input: JsValue) -> String {
+pub fn index(resource: Resource) -> SerializedIndex {
     console_error_panic_hook::set_once();
 
-    let input: Input = from_value(input).unwrap();
-    let index = engine::index(input);
+    let index = engine::index(resource);
 
     match index {
         Ok(tree) => serde_json::to_string(&tree).unwrap(),
@@ -39,18 +61,21 @@ pub fn index(input: JsValue) -> String {
 }
 
 #[wasm_bindgen]
-pub fn search(index: &str, query: JsValue, k: usize) -> Result<JsValue, JsValue> {
+pub fn search(index: SerializedIndex, query: Query, k: NumberOfResult) -> SearchResult {
     console_error_panic_hook::set_once();
 
-    let index: engine::Index = serde_json::from_str(index).unwrap();
+    let index: engine::Index = serde_json::from_str(&index).unwrap();
+    let query: engine::Query = engine::Query::Embeddings(query);
+    let neighbors = engine::search(&index, &query, k).unwrap();
 
-    let query: Result<Vec<f32>, Error> = from_value(query);
-    let query: engine::Query = match query {
-        Ok(q) => engine::Query::Embeddings(q),
-        _ => engine::Query::Embeddings(vec![]),
-    };
+    let neighbors: Vec<Neighbor> = neighbors
+        .into_iter()
+        .map(|res| Neighbor {
+            id: res.id,
+            title: res.title,
+            url: res.url,
+        })
+        .collect();
 
-    let result = engine::search(&index, &query, k).unwrap();
-
-    Ok(to_value(&result)?)
+    SearchResult { neighbors }
 }

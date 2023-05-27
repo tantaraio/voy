@@ -38,10 +38,10 @@ const main = async () => {
 
   // Perform similarity search for a query embeddings
   const q = await model.process(query);
-  const nearests = voy.search(index, q.result, 1);
+  const result = voy.search(index, q.result, 1);
 
   // Display search result
-  nearests.forEach((result) =>
+  result.neighbors.forEach((result) =>
     log(`🕸️ voy similarity search result 👉 "${result.title}"`)
   );
 
