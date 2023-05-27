@@ -38,7 +38,7 @@ pnpm add voy-search
 
 ## APIs
 
-#### `index(input: Resource): SerializedIndex`
+#### `index(resource: Resource): SerializedIndex`
 
 **Parameters**
 
