@@ -47,7 +47,7 @@ interface Resource {
   embeddings: Array<{
     id: string; // id of the resource
     title: string; // title of the resource
-    url: string; // path to the resource
+    url: string; // url to the resource
     embeddings: number[]; // embeddings of the resource
   }>;
 }
@@ -59,7 +59,7 @@ interface Resource {
 type SerializedIndex = string; // serialized k-d tree
 ```
 
-#### `search(index: SerializedIndex, query: Query, k: NumberOfResult): Nearests`
+#### `search(index: SerializedIndex, query: Query, k: NumberOfResult): SearchResult`
 
 **Parameter**
 
@@ -74,12 +74,13 @@ type NumberOfResult = number; // K top results to return
 **Return**
 
 ```ts
-type Nearests = Array<{
-  id: string; // id of the nearest resource
-  title: string; // title of the nearest resource
-  url: string; // path of the nearest resource
-  embeddings: number[]; // embeddings of the nearest resource
-}>;
+interface SearchResult {
+  neighbors: Array<{
+    id: string; // id of the resource
+    title: string; // title of the resource
+    url: string; // url to the resource
+  }>;
+}
 ```
 
 ## Usage
