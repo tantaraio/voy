@@ -20,7 +20,7 @@
 > A sneak peek of what we are working on:
 >
 > - [ ] Built-in text transformation in WebAssembly: As of now, voy relies on JavaScript libraries like [`web-ai`][web-ai] to generate text embeddings. See [Usage](#usage) for more detail.
-> - [ ] Index update: Currently it's required to [re-build the index](#indexinput-resource-serializedindex) when a resource update occurs.
+> - [ ] Index update: Currently it's required to [re-build the index](#indexresource-resource-serializedindex) when a resource update occurs.
 > - [x] TypeScript support: Due to the limitation of WASM tooling, complex data types are not auto-generated.
 
 ## Installation
@@ -110,8 +110,8 @@ const data = processed.map(({ result }, i) => ({
   url: `/path/${i}`,
   embeddings: result,
 }));
-const input = { embeddings: data };
-const index = voy.index(input);
+const resource = { embeddings: data };
+const index = voy.index(resource);
 
 // Perform similarity search for a query embeddings
 const q = await model.process(query);
