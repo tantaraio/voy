@@ -69,9 +69,9 @@ export default function ServerSide() {
     if (!query || !index) return;
 
     const q = await model.process(query);
-    const nearests = voy.search(index, q.result, 4);
+    const result = voy.search(index, q.result, 4);
 
-    setResults(nearests);
+    setResults(result.neighbors);
   }, [index]);
 
   return (
