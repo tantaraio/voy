@@ -15,11 +15,13 @@
 
 > **🚜 Work in Progress**
 >
-> voy is still in development. We are working on:
+> Voy is under active development. As a result, the API is not stable. Please be aware that there might be breaking changes before the upcoming 1.0 release.
+>
+> A sneak peek of what we are working on:
 >
 > - [ ] Built-in text transformation in WebAssembly: As of now, voy relies on JavaScript libraries like [`web-ai`][web-ai] to generate text embeddings. See [Usage](#usage) for more detail.
 > - [ ] Index update: Currently it's required to [re-build the index](#indexinput-resource-serializedindex) when a resource update occurs.
-> - [ ] TypeScript support: Due to the limitation of WASM tooling, complex data types are not auto-generated.
+> - [x] TypeScript support: Due to the limitation of WASM tooling, complex data types are not auto-generated.
 
 ## Installation
 
@@ -64,7 +66,7 @@ type SerializedIndex = string; // serialized k-d tree
 ```ts
 type SerializedIndex = string; // serialized k-d tree
 
-type Query = number[]; // embeddings of the search query
+type Query = Float32Array; // embeddings of the search query
 
 type NumberOfResult = number; // K top results to return
 ```
@@ -76,7 +78,6 @@ type Nearests = Array<{
   id: string; // id of the nearest resource
   title: string; // title of the nearest resource
   url: string; // path of the nearest resource
-  body: string; // body of the nearest resource
   embeddings: number[]; // embeddings of the nearest resource
 }>;
 ```
@@ -113,10 +114,10 @@ const index = voy.index(input);
 
 // Perform similarity search for a query embeddings
 const q = await model.process(query);
-const nearests = voy.search(index, q.result, 1);
+const result = voy.search(index, q.result, 1);
 
 // Display search result
-nearests.forEach((result) =>
+result.neighbors.forEach((result) =>
   console.log(`✨ voy similarity search result: "${result.title}"`)
 );
 ```
