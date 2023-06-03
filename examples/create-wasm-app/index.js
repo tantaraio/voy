@@ -1,5 +1,5 @@
 import { TextModel } from "@visheratin/web-ai";
-import { log } from "./log";
+import { logIndex, logIntro, logResource } from "./log";
 import { phrases } from "./phrases";
 import { perf } from "./performance";
 
@@ -9,18 +9,18 @@ const query =
 const main = async () => {
   const timer = perf();
 
-  log("🎉 Welcome to Voy");
-  log("🕸️ Loading Voy ...");
+  logIntro("🎉 Welcome to Voy");
+  logIntro("🕸️ Loading Voy ...");
 
   // Loading voy WebAssembly module asynchronously
   const voy = await import("voy");
 
-  log(`🕸️ Voy is loaded ✔️ ...`);
-  log([
-    "🕸️ Voy is indexing [",
-    ...phrases.map((p) => `・ "${p},"`),
-    "・ ] ...",
-  ]);
+  logIntro(`🕸️ Voy is loaded ✔️ ...`);
+  logIntro("🕸️ Voy is indexing [");
+
+  logResource([...phrases.map((p) => `・ "${p},"`)]);
+
+  logIndex(`・ ] (${phrases.length} sentences) ...`);
 
   // Create text embeddings
   const model = await (await TextModel.create("gtr-t5-quant")).model;
@@ -36,28 +36,29 @@ const main = async () => {
   const resource = { embeddings: data };
   const index = voy.index(resource);
 
-  log(`🕸️ Voy is indexed ✔️ ...`);
-  log(`🕸️ Voy is searching for the nearest neighbors for "${query}" ...`);
+  logIndex(`🕸️ Voy is indexed ✔️ ...`);
+  logIndex(`🕸️ Voy is searching for the nearest neighbors for "${query}" ...`);
 
   // Perform similarity search for a query embeddings
   const q = await model.process(query);
   const result = voy.search(index, q.result, 3);
 
   // Display search result
-  log("🕸️ --- Voy similarity search result ---");
+  logIndex("🕸️ --- Voy similarity search result ---");
+
   result.neighbors.forEach((result, i) => {
     if (i === 0) {
-      log(`🥇  "${phrases[result.id]}"`);
+      logIndex(`🥇  "${phrases[result.id]}"`);
     } else if (i === 1) {
-      log(`🥈  "${phrases[result.id]}"`);
+      logIndex(`🥈  "${phrases[result.id]}"`);
     } else if (i === 2) {
-      log(`🥉  "${phrases[result.id]}"`);
+      logIndex(`🥉  "${phrases[result.id]}"`);
     } else {
-      log(`🕸️  "${phrases[result.id]}"`);
+      logIndex(`🕸️  "${phrases[result.id]}"`);
     }
   });
 
-  log(`✨ Done in ${timer.stop()}s`);
+  logIndex(`✨ Done in ${timer.stop()}s`);
 };
 
 main();

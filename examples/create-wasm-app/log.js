@@ -9,5 +9,10 @@ const append = (box) => (str) => {
     box.appendChild(para);
   });
 };
-const container = document.querySelector("#example");
-export const log = append(container);
+const intro = document.querySelector("#intro");
+const index = document.querySelector("#index");
+const resource = document.querySelector("#resource");
+
+export const logIntro = append(intro);
+export const logIndex = append(index);
+export const logResource = append(resource);

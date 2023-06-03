@@ -25,14 +25,22 @@
         background-color: rgb(36, 36, 36);
         padding: 1rem 1rem;
         border-radius: 1rem;
-        max-width: 48rem;
+        max-width: 46rem;
         margin: 2rem 1rem;
         box-shadow: rgba(0, 0, 0, 0.25) 0px 25px 50px -12px;
       }
-      @media screen and (min-width: 726px) {
+      @media screen and (min-width: 46rem) {
         section {
           padding: 1rem 2rem;
         }
+      }
+      #resource {
+        display: block;
+        max-height: 24rem;
+        overflow-y: auto;
+        margin: 1rem 0;
+        border-top: 2px #5f5f5f solid;
+        border-bottom: 2px #5f5f5f solid;
       }
     </style>
   </head>
@@ -43,7 +51,9 @@
     >
     <main>
       <section>
-        <code id="example"></code>
+        <code id="intro"></code>
+        <code id="resource"></code>
+        <code id="index"></code>
       </section>
     </main>
     <script src="./bootstrap.js"></script>
