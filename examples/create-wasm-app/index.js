@@ -18,7 +18,7 @@ const main = async () => {
   logIntro(`🕸️ Voy is loaded ✔️ ...`);
   logIntro("🕸️ Voy is indexing [");
 
-  logResource([...phrases.map((p) => `・ "${p},"`)]);
+  logResource([...phrases.map((p) => `・ "${p}",`)]);
 
   logIndex(`・ ] (${phrases.length} sentences) ...`);
 
