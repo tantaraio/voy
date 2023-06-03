@@ -1,11 +1,12 @@
-mod document;
 mod engine;
+mod utils;
 
 #[cfg(test)]
 mod tests;
 
 use serde::{Deserialize, Serialize};
 use tsify::Tsify;
+use utils::set_panic_hook;
 use wasm_bindgen::prelude::*;
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
@@ -52,10 +53,9 @@ pub struct SearchResult {
 
 #[wasm_bindgen]
 pub fn index(resource: Resource) -> SerializedIndex {
-    console_error_panic_hook::set_once();
+    set_panic_hook();
 
     let index = engine::index(resource);
-
     match index {
         Ok(tree) => serde_json::to_string(&tree).unwrap(),
         _ => "".to_owned(),
@@ -64,7 +64,7 @@ pub fn index(resource: Resource) -> SerializedIndex {
 
 #[wasm_bindgen]
 pub fn search(index: SerializedIndex, query: Query, k: NumberOfResult) -> SearchResult {
-    console_error_panic_hook::set_once();
+    set_panic_hook();
 
     let index: engine::Index = serde_json::from_str(&index).unwrap();
     let query: engine::Query = engine::Query::Embeddings(query);
