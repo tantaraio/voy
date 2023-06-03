@@ -1,12 +1,7 @@
-use std::convert::TryInto;
-
 use crate::Resource;
-use kiddo::float::{
-    distance::squared_euclidean,
-    kdtree::{self, KdTree},
-    neighbour::Neighbour,
-};
+use kiddo::float::{distance::squared_euclidean, kdtree::KdTree, neighbour::Neighbour};
 use serde::{Deserialize, Serialize};
+use std::convert::TryInto;
 use typenum::U2;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
@@ -72,44 +67,4 @@ pub fn search<'a>(
     let neighbors = index.nearest_n(query, k, &squared_euclidean);
 
     Ok(neighbors)
-}
-
-#[cfg(test)]
-mod tests {
-    use super::{index, search, Query};
-    use crate::mock::{CONTENT, CONTENT_RAW, QUESTION};
-    use crate::{EmbeddedResource, Resource};
-
-    fn get_resource() -> Resource {
-        let embeddings = CONTENT
-            .iter()
-            .enumerate()
-            .map(|(i, x)| EmbeddedResource {
-                id: i.to_string(),
-                title: CONTENT_RAW.get(i).unwrap().to_string(),
-                url: "".to_owned(),
-                embeddings: x.to_vec(),
-            })
-            .collect();
-        Resource { embeddings }
-    }
-
-    #[test]
-    fn it_indexes_embeddings() {
-        let resource: Resource = get_resource();
-        let index = index(resource).unwrap();
-
-        assert_eq!(index.size(), 6);
-    }
-
-    #[test]
-    fn it_returns_vector_search_result() {
-        let resource: Resource = get_resource();
-        let index = index(resource).unwrap();
-
-        let query = Query::Embeddings(QUESTION.to_vec());
-        let result = search(&index, &query, 1).unwrap();
-
-        assert_eq!(result.get(0).unwrap().item, 0);
-    }
 }

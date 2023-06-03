@@ -1,6 +1,8 @@
 mod document;
 mod engine;
-mod mock;
+
+#[cfg(test)]
+mod tests;
 
 use serde::{Deserialize, Serialize};
 use tsify::Tsify;
