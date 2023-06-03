@@ -33,8 +33,8 @@ impl kd_tree::KdPoint for EmbeddedResource {
     }
 }
 
-// TODO: "IDX" is set to u16 to optimize CPU cache.
-// Index: https://github.com/sdd/kiddo/blob/7a0bb6ecce39963b27ffdca913c6be7a265e3523/src/types.rs#L35
+// "IDX" is set to u16 to optimize CPU cache.
+// Read more: https://github.com/sdd/kiddo/blob/7a0bb6ecce39963b27ffdca913c6be7a265e3523/src/types.rs#L35
 pub type Index = KdTree<f32, usize, 768, 32, u16>;
 
 pub fn index(input: Resource) -> anyhow::Result<Index> {
