@@ -2,28 +2,37 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Hello wasm-pack!</title>
+    <title>Hello Voy!</title>
     <style>
+      html,
       body {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        min-height: 100vh;
+        margin: 0;
+        padding: 0;
+      }
+      body {
         background-color: #121212;
         color: #ffffff;
         font-size: 16px;
       }
+      main {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        min-height: 100vh;
+      }
       section {
         background-color: rgb(36, 36, 36);
-        padding: 1rem 2rem;
+        padding: 1rem 1rem;
         border-radius: 1rem;
-        width: 48rem;
+        max-width: 48rem;
+        margin: 2rem 1rem;
         box-shadow: rgba(0, 0, 0, 0.25) 0px 25px 50px -12px;
       }
-      #example {
-        display: block;
-        width: 100%;
+      @media screen and (min-width: 726px) {
+        section {
+          padding: 1rem 2rem;
+        }
       }
     </style>
   </head>
@@ -32,9 +41,11 @@
       >This page contains webassembly and javascript content, please enable
       javascript in your browser.</noscript
     >
-    <section>
-      <code id="example"></code>
-    </section>
+    <main>
+      <section>
+        <code id="example"></code>
+      </section>
+    </main>
     <script src="./bootstrap.js"></script>
   </body>
 </html>

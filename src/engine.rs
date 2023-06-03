@@ -1,9 +1,15 @@
+use std::convert::TryInto;
+
 use crate::Resource;
-use kd_tree::{KdPoint, KdTree, KdTreeN};
+use kiddo::float::{
+    distance::squared_euclidean,
+    kdtree::{self, KdTree},
+    neighbour::Neighbour,
+};
 use serde::{Deserialize, Serialize};
 use typenum::U2;
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 
 pub struct EmbeddedResource {
     pub id: String,
@@ -14,10 +20,12 @@ pub struct EmbeddedResource {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum Query {
+    // TODO: support query in string
+    // Phrase(String)
     Embeddings(Vec<f32>),
 }
 
-impl KdPoint for EmbeddedResource {
+impl kd_tree::KdPoint for EmbeddedResource {
     type Scalar = f32;
     type Dim = U2; // 2 dimensional tree.
     fn at(&self, k: usize) -> f32 {
@@ -25,9 +33,14 @@ impl KdPoint for EmbeddedResource {
     }
 }
 
-pub type Index = KdTreeN<EmbeddedResource, U2>;
+// TODO: "IDX" is set to u16 to optimize CPU cache.
+// Index: https://github.com/sdd/kiddo/blob/7a0bb6ecce39963b27ffdca913c6be7a265e3523/src/types.rs#L35
+pub type Index = KdTree<f32, usize, 768, 32, u16>;
 
 pub fn index(input: Resource) -> anyhow::Result<Index> {
+    // feed the embeddings and index from the hashmap to kiddo
+    let mut tree: Index = KdTree::new();
+
     let data: Vec<EmbeddedResource> = input
         .embeddings
         .into_iter()
@@ -39,80 +52,64 @@ pub fn index(input: Resource) -> anyhow::Result<Index> {
         })
         .collect();
 
-    let index = KdTree::build_by(data, |a, b, k| {
-        a.embeddings
-            .clone()
-            .into_iter()
-            .nth(k)
-            .partial_cmp(&b.embeddings.clone().into_iter().nth(k))
-            .unwrap()
+    data.iter().enumerate().for_each(|(index, x)| {
+        let query: &[f32; 768] = &x.embeddings[..768].try_into().unwrap();
+        tree.add(query, index)
     });
 
-    Ok(index)
+    Ok(tree)
 }
 
 pub fn search<'a>(
     index: &'a Index,
     query: &'a Query,
     k: usize,
-) -> anyhow::Result<Vec<EmbeddedResource>> {
+) -> anyhow::Result<Vec<Neighbour<f32, usize>>> {
     let query: Vec<f32> = match query {
         Query::Embeddings(q) => q.to_owned(),
     };
-    let query = EmbeddedResource {
-        id: "".to_owned(),
-        title: "".to_owned(),
-        url: "".to_owned(),
-        embeddings: query,
-    };
-    let nearests: Vec<EmbeddedResource> = index
-        .nearests(&query, k)
-        .into_iter()
-        .map(|x| x.item.to_owned())
-        .collect();
+    let query: &[f32; 768] = &query[..768].try_into().unwrap();
+    let neighbors = index.nearest_n(query, k, &squared_euclidean);
 
-    Ok(nearests)
+    Ok(neighbors)
 }
 
 #[cfg(test)]
 mod tests {
     use super::{index, search, Query};
+    use crate::mock::{CONTENT, CONTENT_RAW, QUESTION};
     use crate::{EmbeddedResource, Resource};
 
-    #[test]
-    fn it_indexes_embeddings_and_returns_search_result() {
-        let resource: Resource = Resource {
-            embeddings: vec![
-                EmbeddedResource {
-                    id: "abd".to_owned(),
-                    title: "That is a very happy Person".to_owned(),
-                    url: "/path/to/one".to_owned(),
-                    embeddings: vec![1.0, 2.0, 3.0],
-                },
-                EmbeddedResource {
-                    id: "abd".to_owned(),
-                    title: "That is a Happy Dog".to_owned(),
-                    url: "/path/to/two".to_owned(),
-                    embeddings: vec![3.0, 1.0, 2.0],
-                },
-                EmbeddedResource {
-                    id: "abd".to_owned(),
-                    title: "Today is a sunny day".to_owned(),
-                    url: "/path/to/three".to_owned(),
-                    embeddings: vec![2.0, 3.0, 1.0],
-                },
-            ],
-        };
+    fn get_resource() -> Resource {
+        let embeddings = CONTENT
+            .iter()
+            .enumerate()
+            .map(|(i, x)| EmbeddedResource {
+                id: i.to_string(),
+                title: CONTENT_RAW.get(i).unwrap().to_string(),
+                url: "".to_owned(),
+                embeddings: x.to_vec(),
+            })
+            .collect();
+        Resource { embeddings }
+    }
 
+    #[test]
+    fn it_indexes_embeddings() {
+        let resource: Resource = get_resource();
         let index = index(resource).unwrap();
 
-        let query = Query::Embeddings(vec![3.1, 0.9, 2.1]);
+        assert_eq!(index.size(), 6);
+    }
 
+    #[test]
+    fn it_returns_vector_search_result() {
+        let resource: Resource = get_resource();
+        let index = index(resource).unwrap();
+
+        let query = Query::Embeddings(QUESTION.to_vec());
         let result = search(&index, &query, 1).unwrap();
 
-        assert_eq!(
-            result.into_iter().nth(0).unwrap().title,
-            "That is a Happy Dog",
-        );
+        assert_eq!(result.get(0).unwrap().item, 0);
     }
 }

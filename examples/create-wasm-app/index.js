@@ -2,22 +2,30 @@ import { TextModel } from "@visheratin/web-ai";
 import { log } from "./log";
 
 const phrases = [
-  "That is a very happy Person",
-  "That is a Happy Dog",
-  "Today is a sunny day",
+  "The Amazon rainforest,[a] also called Amazon jungle or Amazonia, is a moist broadleaf tropical rainforest in the",
+  "in the Amazon biome that covers most of the Amazon basin of South America. This basin encompasses 7,000,000 km2",
+  "(2,700,000 sq mi), of which 5,500,000 km2 (2,100,000 sq mi) are covered by the rainforest. This region includes",
+  "includes territory belonging to nine nations and 3,344 formally acknowledged indigenous territories.",
+  "The majority of the forest, 60%, is in Brazil, followed by Peru with 13%, Colombia with 10%, and with minor amounts in",
+  'amounts in Bolivia, Ecuador, French Guiana, Guyana, Suriname, and Venezuela. Four nations have "Amazonas" as the',
 ];
 
-const query = "That is a happy person";
+const query =
+  "Which name is also used to describe the Amazon rainforest in English?";
 
 const main = async () => {
-  log("🎉 Welcome to voy");
-  log("🕸️ Loading voy ...");
+  log("🎉 Welcome to Voy");
+  log("🕸️ Loading Voy ...");
 
   // Loading voy WebAssembly module asynchronously
   const voy = await import("voy");
 
-  log(`🕸️ voy is loaded ✔️ ...`);
-  log(`🕸️ voy is indexing [ ${phrases.map((p) => `"${p}"`).join(", ")} ] ...`);
+  log(`🕸️ Voy is loaded ✔️ ...`);
+  log([
+    "🕸️ Voy is indexing [",
+    ...phrases.map((p) => `・ "${p},"`),
+    "・ ] ...",
+  ]);
 
   // Create text embeddings
   const model = await (await TextModel.create("gtr-t5-quant")).model;
@@ -30,11 +38,11 @@ const main = async () => {
     url: `/path/${i}`,
     embeddings: result,
   }));
-  const input = { embeddings: data };
-  const index = voy.index(input);
+  const resource = { embeddings: data };
+  const index = voy.index(resource);
 
-  log(`🕸️ voy is indexed ✔️ ...`);
-  log(`🕸️ voy is searching for the nearest neighbor for "${query}" ...`);
+  log(`🕸️ Voy is indexed ✔️ ...`);
+  log(`🕸️ Voy is searching for the nearest neighbor for "${query}" ...`);
 
   // Perform similarity search for a query embeddings
   const q = await model.process(query);
@@ -42,7 +50,7 @@ const main = async () => {
 
   // Display search result
   result.neighbors.forEach((result) =>
-    log(`🕸️ voy similarity search result 👉 "${result.title}"`)
+    log(`🕸️ Voy similarity search result 👉 "${phrases[result.id]}"`)
   );
 
   log("✨ Done");
