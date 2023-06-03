@@ -37,7 +37,7 @@ const main = async () => {
   const index = voy.index(resource);
 
   logIndex(`🕸️ Voy is indexed ✔️ ...`);
-  logIndex(`🕸️ Voy is searching for the nearest neighbors for "${query}" ...`);
+  logIndex(`🕸️ Voy is searching for the nearest neighbors of "${query}" ...`);
 
   // Perform similarity search for a query embeddings
   const q = await model.process(query);
