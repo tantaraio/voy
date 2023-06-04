@@ -20,7 +20,7 @@
 > A sneak peek of what we are working on:
 >
 > - [ ] Built-in text transformation in WebAssembly: As of now, voy relies on JavaScript libraries like [`web-ai`][web-ai] to generate text embeddings. See [Usage](#usage) for more detail.
-> - [ ] Index update: Currently it's required to [re-build the index](#indexresource-resource-serializedindex) when a resource update occurs.
+> - [x] Index update: Currently it's required to [re-build the index](#indexresource-resource-serializedindex) when a resource update occurs.
 > - [x] TypeScript support: Due to the limitation of WASM tooling, complex data types are not auto-generated.
 
 ## Installation
@@ -40,6 +40,8 @@ pnpm add voy-search
 
 #### `index(resource: Resource): SerializedIndex`
 
+It indexes the given resource and returns a serialized index.
+
 **Parameters**
 
 ```ts
@@ -56,15 +58,17 @@ interface Resource {
 **Return**
 
 ```ts
-type SerializedIndex = string; // serialized k-d tree
+type SerializedIndex = string;
 ```
 
 #### `search(index: SerializedIndex, query: Query, k: NumberOfResult): SearchResult`
 
+It deserializes the given index and search for the `k` nearest neighbors of the query.
+
 **Parameter**
 
 ```ts
-type SerializedIndex = string; // serialized k-d tree
+type SerializedIndex = string;
 
 type Query = Float32Array; // embeddings of the search query
 
@@ -81,6 +85,56 @@ interface SearchResult {
     url: string; // url to the resource
   }>;
 }
+```
+
+#### `add(index: SerializedIndex, resource: Resource): SerializedIndex`
+
+It adds resources to the index and returns an updated serialized index.
+
+**Parameter**
+
+```ts
+type SerializedIndex = string;
+
+interface Resource {
+  embeddings: Array<{
+    id: string; // id of the resource
+    title: string; // title of the resource
+    url: string; // url to the resource
+    embeddings: number[]; // embeddings of the resource
+  }>;
+}
+```
+
+**Return**
+
+```ts
+type SerializedIndex = string;
+```
+
+#### `remove(index: SerializedIndex, resource: Resource): SerializedIndex`
+
+It removes resources from the index and returns an updated serialized index.
+
+**Parameter**
+
+```ts
+type SerializedIndex = string;
+
+interface Resource {
+  embeddings: Array<{
+    id: string; // id of the resource
+    title: string; // title of the resource
+    url: string; // url to the resource
+    embeddings: number[]; // embeddings of the resource
+  }>;
+}
+```
+
+**Return**
+
+```ts
+type SerializedIndex = string;
 ```
 
 ## Usage

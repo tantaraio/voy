@@ -1,23 +1,26 @@
 import { TextModel } from "@visheratin/web-ai";
-import { log } from "./log";
+import { logIndex, logIntro, logResource } from "./log";
+import { phrases } from "./phrases";
+import { perf } from "./performance";
 
-const phrases = [
-  "That is a very happy Person",
-  "That is a Happy Dog",
-  "Today is a sunny day",
-];
-
-const query = "That is a happy person";
+const query =
+  "Which name is also used to describe the Amazon rainforest in English?";
 
 const main = async () => {
-  log("🎉 Welcome to voy");
-  log("🕸️ Loading voy ...");
+  const timer = perf();
+
+  logIntro("🎉 Welcome to Voy");
+  logIntro("🕸️ Loading Voy ...");
 
   // Loading voy WebAssembly module asynchronously
   const voy = await import("voy");
 
-  log(`🕸️ voy is loaded ✔️ ...`);
-  log(`🕸️ voy is indexing [ ${phrases.map((p) => `"${p}"`).join(", ")} ] ...`);
+  logIntro(`🕸️ Voy is loaded ✔️ ...`);
+  logIntro("🕸️ Voy is indexing [");
+
+  logResource([...phrases.map((p) => `・ "${p}",`)]);
+
+  logIndex(`・ ] (${phrases.length} sentences) ...`);
 
   // Create text embeddings
   const model = await (await TextModel.create("gtr-t5-quant")).model;
@@ -30,22 +33,32 @@ const main = async () => {
     url: `/path/${i}`,
     embeddings: result,
   }));
-  const input = { embeddings: data };
-  const index = voy.index(input);
+  const resource = { embeddings: data };
+  const index = voy.index(resource);
 
-  log(`🕸️ voy is indexed ✔️ ...`);
-  log(`🕸️ voy is searching for the nearest neighbor for "${query}" ...`);
+  logIndex(`🕸️ Voy is indexed ✔️ ...`);
+  logIndex(`🕸️ Voy is searching for the nearest neighbors of "${query}" ...`);
 
   // Perform similarity search for a query embeddings
   const q = await model.process(query);
-  const result = voy.search(index, q.result, 1);
+  const result = voy.search(index, q.result, 3);
 
   // Display search result
-  result.neighbors.forEach((result) =>
-    log(`🕸️ voy similarity search result 👉 "${result.title}"`)
-  );
+  logIndex("🕸️ --- Voy similarity search result ---");
 
-  log("✨ Done");
+  result.neighbors.forEach((result, i) => {
+    if (i === 0) {
+      logIndex(`🥇  "${result.title}"`);
+    } else if (i === 1) {
+      logIndex(`🥈  "${result.title}"`);
+    } else if (i === 2) {
+      logIndex(`🥉  "${result.title}"`);
+    } else {
+      logIndex(`🕸️  "${result.title}"`);
+    }
+  });
+
+  logIndex(`✨ Done in ${timer.stop()}s`);
 };
 
 main();
