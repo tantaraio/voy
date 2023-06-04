@@ -73,7 +73,7 @@ pub fn search(index: SerializedIndex, query: Query, k: NumberOfResult) -> Search
     let neighbors = engine::search(&index, &query, k).unwrap();
     let neighbors: Vec<Neighbor> = neighbors
         .into_iter()
-        .map(|x: engine::Document| Neighbor {
+        .map(|x| Neighbor {
             id: x.id,
             title: x.title,
             url: x.url,
