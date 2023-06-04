@@ -58,7 +58,7 @@ interface Resource {
 **Return**
 
 ```ts
-type SerializedIndex = string; // serialized k-d tree
+type SerializedIndex = string;
 ```
 
 #### `search(index: SerializedIndex, query: Query, k: NumberOfResult): SearchResult`
@@ -68,7 +68,7 @@ It deserializes the given index and search for the `k` nearest neighbors of the 
 **Parameter**
 
 ```ts
-type SerializedIndex = string; // serialized k-d tree
+type SerializedIndex = string;
 
 type Query = Float32Array; // embeddings of the search query
 
@@ -94,7 +94,7 @@ It adds resources to the index and returns an updated serialized index.
 **Parameter**
 
 ```ts
-type SerializedIndex = string; // serialized k-d tree
+type SerializedIndex = string;
 
 interface Resource {
   embeddings: Array<{
@@ -109,7 +109,7 @@ interface Resource {
 **Return**
 
 ```ts
-type SerializedIndex = string; // serialized k-d tree
+type SerializedIndex = string;
 ```
 
 #### `remove(index: SerializedIndex, resource: Resource): SerializedIndex`
@@ -119,7 +119,7 @@ It removes resources from the index and returns an updated serialized index.
 **Parameter**
 
 ```ts
-type SerializedIndex = string; // serialized k-d tree
+type SerializedIndex = string;
 
 interface Resource {
   embeddings: Array<{
@@ -134,7 +134,7 @@ interface Resource {
 **Return**
 
 ```ts
-type SerializedIndex = string; // serialized k-d tree
+type SerializedIndex = string;
 ```
 
 ## Usage
