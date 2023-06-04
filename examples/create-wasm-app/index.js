@@ -48,13 +48,13 @@ const main = async () => {
 
   result.neighbors.forEach((result, i) => {
     if (i === 0) {
-      logIndex(`🥇  "${phrases[result.id]}"`);
+      logIndex(`🥇  "${result.title}"`);
     } else if (i === 1) {
-      logIndex(`🥈  "${phrases[result.id]}"`);
+      logIndex(`🥈  "${result.title}"`);
     } else if (i === 2) {
-      logIndex(`🥉  "${phrases[result.id]}"`);
+      logIndex(`🥉  "${result.title}"`);
     } else {
-      logIndex(`🕸️  "${phrases[result.id]}"`);
+      logIndex(`🕸️  "${result.title}"`);
     }
   });
 

@@ -41,14 +41,15 @@ pub struct Resource {
 #[derive(Serialize, Deserialize, Debug, Clone, Tsify)]
 #[tsify(into_wasm_abi)]
 pub struct Neighbor {
-    pub id: usize,
-    pub distance: f32,
+    pub id: String,
+    pub title: String,
+    pub url: String,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Tsify)]
 #[tsify(into_wasm_abi, from_wasm_abi)]
 pub struct SearchResult {
-    neighbors: Vec<Neighbor>,
+    pub neighbors: Vec<Neighbor>,
 }
 
 #[wasm_bindgen]
@@ -72,11 +73,32 @@ pub fn search(index: SerializedIndex, query: Query, k: NumberOfResult) -> Search
     let neighbors = engine::search(&index, &query, k).unwrap();
     let neighbors: Vec<Neighbor> = neighbors
         .into_iter()
-        .map(|n| Neighbor {
-            id: n.item,
-            distance: n.distance,
+        .map(|x: engine::Document| Neighbor {
+            id: x.id,
+            title: x.title,
+            url: x.url,
         })
         .collect();
 
     SearchResult { neighbors }
+}
+
+#[wasm_bindgen]
+pub fn add(index: SerializedIndex, resource: Resource) -> SerializedIndex {
+    set_panic_hook();
+
+    let mut index: engine::Index = serde_json::from_str(&index).unwrap();
+    engine::add(&mut index, &resource);
+
+    serde_json::to_string(&index).unwrap()
+}
+
+#[wasm_bindgen]
+pub fn remove(index: SerializedIndex, resource: Resource) -> SerializedIndex {
+    set_panic_hook();
+
+    let mut index: engine::Index = serde_json::from_str(&index).unwrap();
+    engine::remove(&mut index, &resource);
+
+    serde_json::to_string(&index).unwrap()
 }

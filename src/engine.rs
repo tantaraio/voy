@@ -1,16 +1,14 @@
 use crate::Resource;
-use kiddo::float::{distance::squared_euclidean, kdtree::KdTree, neighbour::Neighbour};
+use kiddo::float::{distance::squared_euclidean, kdtree::KdTree};
 use serde::{Deserialize, Serialize};
 use std::convert::TryInto;
-use typenum::U2;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 
-pub struct EmbeddedResource {
+pub struct Document {
     pub id: String,
     pub title: String,
     pub url: String,
-    pub embeddings: Vec<f32>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -20,51 +18,80 @@ pub enum Query {
     Embeddings(Vec<f32>),
 }
 
-impl kd_tree::KdPoint for EmbeddedResource {
-    type Scalar = f32;
-    type Dim = U2; // 2 dimensional tree.
-    fn at(&self, k: usize) -> f32 {
-        self.embeddings[k]
-    }
+pub type Tree = KdTree<f32, usize, 768, 32, u16>;
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Index {
+    // "IDX" is set to u16 to optimize CPU cache.
+    // Read more: https://github.com/sdd/kiddo/blob/7a0bb6ecce39963b27ffdca913c6be7a265e3523/src/types.rs#L35
+    pub tree: Tree,
+    pub data: Vec<Document>,
 }
 
-// "IDX" is set to u16 to optimize CPU cache.
-// Read more: https://github.com/sdd/kiddo/blob/7a0bb6ecce39963b27ffdca913c6be7a265e3523/src/types.rs#L35
-pub type Index = KdTree<f32, usize, 768, 32, u16>;
-
-pub fn index(input: Resource) -> anyhow::Result<Index> {
-    // feed the embeddings and index from the hashmap to kiddo
-    let mut tree: Index = KdTree::new();
-
-    let data: Vec<EmbeddedResource> = input
+pub fn index(resource: Resource) -> anyhow::Result<Index> {
+    let data: Vec<Document> = resource
         .embeddings
-        .into_iter()
-        .map(|emb| EmbeddedResource {
-            id: emb.id,
-            title: emb.title,
-            url: emb.url,
-            embeddings: emb.embeddings,
+        .iter()
+        .map(|resource| Document {
+            id: resource.id.to_owned(),
+            title: resource.title.to_owned(),
+            url: resource.url.to_owned(),
         })
         .collect();
 
-    data.iter().enumerate().for_each(|(index, x)| {
-        let query: &[f32; 768] = &x.embeddings[..768].try_into().unwrap();
-        tree.add(query, index)
-    });
+    let mut tree: Tree = KdTree::new();
 
-    Ok(tree)
+    resource
+        .embeddings
+        .iter()
+        .enumerate()
+        .for_each(|(index, resource)| {
+            let query: &[f32; 768] = &resource.embeddings[..768].try_into().unwrap();
+            // "item" holds the position of the document in "data"
+            tree.add(query, index)
+        });
+
+    Ok(Index { tree, data })
 }
 
-pub fn search<'a>(
-    index: &'a Index,
-    query: &'a Query,
-    k: usize,
-) -> anyhow::Result<Vec<Neighbour<f32, usize>>> {
+pub fn search<'a>(index: &'a Index, query: &'a Query, k: usize) -> anyhow::Result<Vec<Document>> {
     let query: Vec<f32> = match query {
         Query::Embeddings(q) => q.to_owned(),
     };
     let query: &[f32; 768] = &query[..768].try_into().unwrap();
-    let neighbors = index.nearest_n(query, k, &squared_euclidean);
+    let neighbors = index.tree.nearest_n(query, k, &squared_euclidean);
 
-    Ok(neighbors)
+    let mut result: Vec<Document> = vec![];
+
+    for neighbor in &neighbors {
+        let doc = index.data[neighbor.item].to_owned();
+        result.push(doc);
+    }
+
+    Ok(result)
+}
+
+pub fn add<'a>(index: &'a mut Index, resource: &'a Resource) {
+    for item in &resource.embeddings {
+        let query: &[f32; 768] = item.embeddings[..768].try_into().unwrap();
+        let doc = Document {
+            id: item.id.to_owned(),
+            title: item.title.to_owned(),
+            url: item.url.to_owned(),
+        };
+        index.data.push(doc);
+        index.tree.add(query, index.data.len());
+    }
+}
+
+pub fn remove<'a>(index: &'a mut Index, resource: &'a Resource) {
+    for item in &resource.embeddings {
+        let query: &[f32; 768] = item.embeddings[..768].try_into().unwrap();
+        let doc_index = index.data.iter().position(|x| x.id == item.id);
+
+        if let Some(i) = doc_index {
+            index.tree.remove(query, i);
+            index.data.remove(i);
+        }
+    }
 }
