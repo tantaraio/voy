@@ -3,8 +3,10 @@ import { logIndex, logIntro, logResource } from "./log";
 import { phrases } from "./phrases";
 import { perf } from "./performance";
 
-const query =
+const initialQuery =
   "Which name is also used to describe the Amazon rainforest in English?";
+
+const initialPhrases = phrases.slice(0, 6);
 
 const main = async () => {
   const timer = perf();
@@ -18,35 +20,102 @@ const main = async () => {
   logIntro(`🕸️ Voy is loaded ✔️ ...`);
   logIntro("🕸️ Voy is indexing [");
 
-  logResource([...phrases.map((p) => `・ "${p}",`)]);
+  logResource([...initialPhrases.map((p) => `・ "${p}",`)]);
 
-  logIndex(`・ ] (${phrases.length} sentences) ...`);
+  logIndex(`・ ] (${initialPhrases.length} phrases) ...`);
 
   // Create text embeddings
   const model = await (await TextModel.create("gtr-t5-quant")).model;
-  const processed = await Promise.all(phrases.map((q) => model.process(q)));
+  const processed = await Promise.all(
+    initialPhrases.map((q) => model.process(q))
+  );
 
   // Index embeddings with voy
   const data = processed.map(({ result }, i) => ({
     id: String(i),
-    title: phrases[i],
+    title: initialPhrases[i],
     url: `/path/${i}`,
     embeddings: result,
   }));
   const resource = { embeddings: data };
-  const index = voy.index(resource);
+
+  let index = voy.index(resource);
 
   logIndex(`🕸️ Voy is indexed ✔️ ...`);
-  logIndex(`🕸️ Voy is searching for the nearest neighbors of "${query}" ...`);
+  logIndex(
+    `🕸️ Voy is searching for the nearest neighbors of "${initialQuery}" ...`
+  );
 
-  // Perform similarity search for a query embeddings
-  const q = await model.process(query);
+  // Perform similarity search for the query embeddings
+  const q = await model.process(initialQuery);
   const result = voy.search(index, q.result, 3);
 
   // Display search result
   logIndex("🕸️ --- Voy similarity search result ---");
 
   result.neighbors.forEach((result, i) => {
+    if (i === 0) {
+      logIndex(`🥇  "${result.title}"`);
+    } else if (i === 1) {
+      logIndex(`🥈  "${result.title}"`);
+    } else if (i === 2) {
+      logIndex(`🥉  "${result.title}"`);
+    } else {
+      logIndex(`🕸️  "${result.title}"`);
+    }
+  });
+
+  logIndex("⮐");
+
+  const newPhrase = phrases.slice(6, 7);
+
+  logIndex(`🕸️ Voy is adding a new phrase "${newPhrase[0]}" to the index ...`);
+
+  const newEmbeddings = await Promise.all(
+    newPhrase.map((q) => model.process(q))
+  );
+
+  const addition = newEmbeddings.map(({ result }, i) => ({
+    id: String(6),
+    title: newPhrase[i],
+    url: `/path/${6}`,
+    embeddings: result,
+  }));
+
+  index = voy.add(index, { embeddings: addition });
+
+  logIndex(`🕸️ Voy is indexed ✔️ ...`);
+  logIndex(
+    `🕸️ Voy is searching for the nearest neighbors of "${initialQuery}" ...`
+  );
+  logIndex("🕸️ --- Voy similarity search result ---");
+
+  voy.search(index, q.result, 3).neighbors.forEach((result, i) => {
+    if (i === 0) {
+      logIndex(`🥇  "${result.title}"`);
+    } else if (i === 1) {
+      logIndex(`🥈  "${result.title}"`);
+    } else if (i === 2) {
+      logIndex(`🥉  "${result.title}"`);
+    } else {
+      logIndex(`🕸️  "${result.title}"`);
+    }
+  });
+
+  logIndex("⮐");
+  logIndex(
+    `🕸️ Voy is removing the new phrase "${newPhrase[0]}" from the index ...`
+  );
+
+  index = voy.remove(index, { embeddings: addition });
+  logIndex(
+    `🕸️ Voy is searching for the nearest neighbors of "${initialQuery}" ...`
+  );
+
+  logIndex(`🕸️ Voy is indexed ✔️ ...`);
+  logIndex("🕸️ --- Voy similarity search result ---");
+
+  voy.search(index, q.result, 3).neighbors.forEach((result, i) => {
     if (i === 0) {
       logIndex(`🥇  "${result.title}"`);
     } else if (i === 1) {
