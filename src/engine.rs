@@ -80,7 +80,7 @@ pub fn add<'a>(index: &'a mut Index, resource: &'a Resource) {
             url: item.url.to_owned(),
         };
         index.data.push(doc);
-        index.tree.add(query, index.data.len());
+        index.tree.add(query, index.data.len() - 1);
     }
 }
 
