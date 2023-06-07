@@ -41,6 +41,7 @@ tsify = "0.4.5"
 kiddo = { version = "2.1.0", features = ["serialize"] }
 
 [dev-dependencies]
+rstest = "0.17.0"
 wasm-bindgen-test = "0.3.13"
 
 [profile.release]
