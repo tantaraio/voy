@@ -2,9 +2,8 @@ mod fixtures;
 
 use crate::engine::{add, index, remove, search, Query};
 use crate::{EmbeddedResource, Resource};
-use rstest::*;
 use fixtures::*;
-
+use rstest::*;
 
 #[rstest]
 fn it_indexes_embeddings(resource_fixture: Resource) {
@@ -14,7 +13,11 @@ fn it_indexes_embeddings(resource_fixture: Resource) {
 }
 
 #[rstest]
-fn it_returns_vector_search_result(resource_fixture: Resource, question_fixture: [f32; 768], content_fixture: [&'static str; 6]) {
+fn it_returns_vector_search_result(
+    resource_fixture: Resource,
+    question_fixture: [f32; 768],
+    content_fixture: [&'static str; 6],
+) {
     let index = index(resource_fixture).unwrap();
     let query = Query::Embeddings(question_fixture.to_vec());
     let result = search(&index, &query, 1).unwrap();
@@ -23,7 +26,11 @@ fn it_returns_vector_search_result(resource_fixture: Resource, question_fixture:
 }
 
 #[rstest]
-fn it_adds_embeddings_to_index(resource_fixture: Resource, content_fixture: [&'static str; 6], embedding_fixture:[[f32; 768]; 6]) {
+fn it_adds_embeddings_to_index(
+    resource_fixture: Resource,
+    content_fixture: [&'static str; 6],
+    embedding_fixture: [[f32; 768]; 6],
+) {
     let mut index = index(resource_fixture).unwrap();
     let addition = Resource {
         embeddings: vec![EmbeddedResource {
@@ -39,7 +46,11 @@ fn it_adds_embeddings_to_index(resource_fixture: Resource, content_fixture: [&'s
 }
 
 #[rstest]
-fn it_removes_embeddings_from_index(resource_fixture: Resource, content_fixture: [&'static str; 6], embedding_fixture:[[f32; 768]; 6]) {
+fn it_removes_embeddings_from_index(
+    resource_fixture: Resource,
+    content_fixture: [&'static str; 6],
+    embedding_fixture: [[f32; 768]; 6],
+) {
     let mut index = index(resource_fixture).unwrap();
     let target = Resource {
         embeddings: vec![EmbeddedResource {

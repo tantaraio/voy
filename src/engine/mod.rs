@@ -3,4 +3,4 @@ mod engine;
 #[cfg(test)]
 mod tests;
 
-pub use engine::{Query, Index, add,index,remove,search};
+pub use engine::{add, index, remove, search, Index, Query};
