@@ -20,9 +20,14 @@ fn it_returns_vector_search_result(
 ) {
     let index = index(resource_fixture).unwrap();
     let query = Query::Embeddings(question_fixture.to_vec());
-    let result = search(&index, &query, 1).unwrap();
+    let result = search(&index, &query, 6).unwrap();
 
     assert_eq!(result.get(0).unwrap().title, content_fixture[0]);
+    assert_eq!(result.get(1).unwrap().title, content_fixture[1]);
+    assert_eq!(result.get(2).unwrap().title, content_fixture[2]);
+    assert_eq!(result.get(3).unwrap().title, content_fixture[4]);
+    assert_eq!(result.get(4).unwrap().title, content_fixture[5]);
+    assert_eq!(result.get(5).unwrap().title, content_fixture[3]);
 }
 
 #[rstest]
