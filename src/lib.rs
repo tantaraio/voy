@@ -1,9 +1,6 @@
 mod engine;
 mod utils;
 
-#[cfg(test)]
-mod tests;
-
 use serde::{Deserialize, Serialize};
 use tsify::Tsify;
 use utils::set_panic_hook;

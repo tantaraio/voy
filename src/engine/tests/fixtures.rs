@@ -1,4 +1,38 @@
-pub static CONTENT_RAW: [&str; 6] = [
+use rstest::fixture;
+use crate::{Resource, EmbeddedResource};
+
+#[fixture]
+pub fn content_fixture() -> [&'static str; 6] {
+    CONTENT
+}
+
+#[fixture]
+pub fn embedding_fixture() -> [[f32; 768]; 6] {
+    EMBEDDING
+}
+
+#[fixture]
+pub fn question_fixture() -> [f32; 768] {
+    QUESTION
+}
+
+#[fixture]
+pub fn resource_fixture() -> Resource {
+    let content = content_fixture();
+    let embeddings = embedding_fixture()
+        .iter()
+        .enumerate()
+        .map(|(i, x)| EmbeddedResource {
+            id: i.to_string(),
+            title: content.get(i).unwrap().to_string(),
+            url: "".to_owned(),
+            embeddings: x.to_vec(),
+        })
+        .collect();
+    Resource { embeddings }
+}
+
+pub static CONTENT: [&str; 6] = [
     "The Amazon rainforest,[a] also called Amazon jungle or Amazonia, is a moist broadleaf tropical rainforest in the",
     "in the Amazon biome that covers most of the Amazon basin of South America. This basin encompasses 7,000,000 km2",
     "(2,700,000 sq mi), of which 5,500,000 km2 (2,100,000 sq mi) are covered by the rainforest. This region includes",
@@ -6,7 +40,8 @@ pub static CONTENT_RAW: [&str; 6] = [
     "The majority of the forest, 60%, is in Brazil, followed by Peru with 13%, Colombia with 10%, and with minor amounts in",
     "amounts in Bolivia, Ecuador, French Guiana, Guyana, Suriname, and Venezuela. Four nations have \"Amazonas\" as the",  
 ];
-pub static CONTENT: [[f32; 768]; 6] = [
+
+pub static EMBEDDING: [[f32; 768]; 6] = [
     [
         0.01960003957247733,
         -0.03651725347725505,
