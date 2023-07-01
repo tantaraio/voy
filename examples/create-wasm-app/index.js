@@ -127,6 +127,12 @@ const main = async () => {
     }
   });
 
+  logIndex("⮐");
+  logIndex(`🕸️ Voy is clearing the index ...`);
+
+  index = voy.clear(index);
+
+  logIndex(`🕸️ Voy is cleared ✔️ ...`);
   logIndex(`✨ Done in ${timer.stop()}s`);
 };
 
