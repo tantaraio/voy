@@ -19,7 +19,7 @@
 >
 > A sneak peek of what we are working on:
 >
-> - [ ] Built-in text transformation in WebAssembly: As of now, voy relies on JavaScript libraries like [`web-ai`][web-ai] to generate text embeddings. See [Usage](#usage) for more detail.
+> - [ ] Built-in text transformation in WebAssembly: As of now, voy relies on JavaScript libraries like [`transformers.js`][transformers.js] to generate text embeddings. See [Usage](#usage) for more detail.
 > - [x] Index update: Currently it's required to [re-build the index](#indexresource-resource-serializedindex) when a resource update occurs.
 > - [x] TypeScript support: Due to the limitation of WASM tooling, complex data types are not auto-generated.
 
@@ -225,7 +225,9 @@ type SerializedIndex = string;
 
 ## Usage
 
-As of now, voy relies on libraries like [`web-ai`][web-ai] to generate embeddings for text:
+### With Transformers
+
+As of now, voy relies on libraries like [`transformers.js`][transformers.js] and [`web-ai`][web-ai] to generate embeddings for text:
 
 ```js
 import { TextModel } from "@visheratin/web-ai";
@@ -263,6 +265,34 @@ result.neighbors.forEach((result) =>
 );
 ```
 
+### Multiple Indexes
+
+```js
+import { TextModel } from "@visheratin/web-ai";
+
+const { Voy } = await import("voy-search");
+const phrases = [
+  "That is a very happy Person",
+  "That is a Happy Dog",
+  "Today is a sunny day",
+  "Sun flowers are blooming",
+];
+const model = await (await TextModel.create("gtr-t5-quant")).model;
+const processed = await Promise.all(phrases.map((q) => model.process(q)));
+
+const data = processed.map(({ result }, i) => ({
+  id: String(i),
+  title: phrases[i],
+  url: `/path/${i}`,
+  embeddings: result,
+}));
+const resourceA = { embeddings: data.slice(0, 2) };
+const resourceB = { embeddings: data.slice(2) };
+
+const indexA = new Voy(resourceA);
+const indexB = new Voy(resourceB);
+```
+
 ## License
 
 Licensed under either of
@@ -287,3 +317,4 @@ conditions.
 [demo]: ./voy.gif "voy demo"
 [web-ai]: https://github.com/visheratin/web-ai
 [k-d-tree]: https://en.wikipedia.org/wiki/K-d_tree
+[transformers.js]: https://github.com/xenova/transformers.js
