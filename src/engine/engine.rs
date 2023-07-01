@@ -95,3 +95,10 @@ pub fn remove<'a>(index: &'a mut Index, resource: &'a Resource) {
         }
     }
 }
+
+pub fn clear<'a>(index: &'a mut Index) {
+    // simply assign a new tree and data because traversing the nodes to perform removal is the only alternative.
+    // Kiddo provides only basic removal. See more: https://github.com/sdd/kiddo/issues/76
+    index.tree = KdTree::new();
+    index.data = Vec::new();
+}

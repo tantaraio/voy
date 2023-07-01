@@ -99,3 +99,13 @@ pub fn remove(index: SerializedIndex, resource: Resource) -> SerializedIndex {
 
     serde_json::to_string(&index).unwrap()
 }
+
+#[wasm_bindgen]
+pub fn clear(index: SerializedIndex) -> SerializedIndex {
+    set_panic_hook();
+
+    let mut index: engine::Index = serde_json::from_str(&index).unwrap();
+    engine::clear(&mut index);
+
+    serde_json::to_string(&index).unwrap()
+}

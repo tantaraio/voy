@@ -1,13 +1,13 @@
 mod fixtures;
 
-use crate::engine::{add, index, remove, search, Query};
+use crate::engine;
 use crate::{EmbeddedResource, Resource};
 use fixtures::*;
 use rstest::*;
 
 #[rstest]
 fn it_indexes_embeddings(resource_fixture: Resource) {
-    let index = index(resource_fixture).unwrap();
+    let index = engine::index(resource_fixture).unwrap();
 
     assert_eq!(index.tree.size(), 6);
 }
@@ -18,9 +18,9 @@ fn it_returns_vector_search_result(
     question_fixture: [f32; 768],
     content_fixture: [&'static str; 6],
 ) {
-    let index = index(resource_fixture).unwrap();
-    let query = Query::Embeddings(question_fixture.to_vec());
-    let result = search(&index, &query, 6).unwrap();
+    let index = engine::index(resource_fixture).unwrap();
+    let query = engine::Query::Embeddings(question_fixture.to_vec());
+    let result = engine::search(&index, &query, 6).unwrap();
 
     assert_eq!(result.get(0).unwrap().title, content_fixture[0]);
     assert_eq!(result.get(1).unwrap().title, content_fixture[1]);
@@ -36,7 +36,7 @@ fn it_adds_embeddings_to_index(
     content_fixture: [&'static str; 6],
     embedding_fixture: [[f32; 768]; 6],
 ) {
-    let mut index = index(resource_fixture).unwrap();
+    let mut index = engine::index(resource_fixture).unwrap();
     let addition = Resource {
         embeddings: vec![EmbeddedResource {
             id: "5".to_owned(),
@@ -46,7 +46,7 @@ fn it_adds_embeddings_to_index(
         }],
     };
 
-    add(&mut index, &addition);
+    engine::add(&mut index, &addition);
     assert_eq!(index.tree.size(), 7);
 }
 
@@ -56,7 +56,7 @@ fn it_removes_embeddings_from_index(
     content_fixture: [&'static str; 6],
     embedding_fixture: [[f32; 768]; 6],
 ) {
-    let mut index = index(resource_fixture).unwrap();
+    let mut index = engine::index(resource_fixture).unwrap();
     let target = Resource {
         embeddings: vec![EmbeddedResource {
             id: "1".to_owned(),
@@ -66,6 +66,17 @@ fn it_removes_embeddings_from_index(
         }],
     };
 
-    remove(&mut index, &target);
+    engine::remove(&mut index, &target);
     assert_eq!(index.tree.size(), 5);
+}
+
+#[rstest]
+fn it_clears_all_embeddings_from_index(resource_fixture: Resource) {
+    let mut index = engine::index(resource_fixture).unwrap();
+    assert_eq!(index.tree.size(), 6);
+    assert_eq!(index.data.len(), 6);
+
+    engine::clear(&mut index);
+    assert_eq!(index.tree.size(), 0);
+    assert_eq!(index.data.len(), 0);
 }
