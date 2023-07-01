@@ -33,7 +33,7 @@
   "dependencies": {
     "@visheratin/web-ai": "^0.4.9",
     "jimp": "^0.22.7",
-    "voy": "file:../../pkg"
+    "voy-search": "file:../../pkg"
   },
   "devDependencies": {
     "copy-webpack-plugin": "^5.0.0",

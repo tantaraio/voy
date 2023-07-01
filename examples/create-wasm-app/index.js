@@ -15,7 +15,7 @@ const main = async () => {
   logIntro("🕸️ Loading Voy ...");
 
   // Loading voy WebAssembly module asynchronously
-  const voy = await import("voy");
+  const { Voy } = await import("voy-search");
 
   logIntro(`🕸️ Voy is loaded ✔️ ...`);
   logIntro("🕸️ Voy is indexing [");
@@ -39,7 +39,7 @@ const main = async () => {
   }));
   const resource = { embeddings: data };
 
-  let index = voy.index(resource);
+  const voy = new Voy(resource);
 
   logIndex(`🕸️ Voy is indexed ✔️ ...`);
   logIndex(
@@ -48,7 +48,7 @@ const main = async () => {
 
   // Perform similarity search for the query embeddings
   const q = await model.process(initialQuery);
-  const result = voy.search(index, q.result, 3);
+  const result = voy.search(q.result, 3);
 
   // Display search result
   logIndex("🕸️ --- Voy similarity search result ---");
@@ -82,7 +82,7 @@ const main = async () => {
     embeddings: result,
   }));
 
-  index = voy.add(index, { embeddings: addition });
+  index = voy.add({ embeddings: addition });
 
   logIndex(`🕸️ Voy is indexed ✔️ ...`);
   logIndex(
@@ -90,7 +90,7 @@ const main = async () => {
   );
   logIndex("🕸️ --- Voy similarity search result ---");
 
-  voy.search(index, q.result, 3).neighbors.forEach((result, i) => {
+  voy.search(q.result, 3).neighbors.forEach((result, i) => {
     if (i === 0) {
       logIndex(`🥇  "${result.title}"`);
     } else if (i === 1) {
@@ -107,7 +107,7 @@ const main = async () => {
     `🕸️ Voy is removing the new phrase "${newPhrase[0]}" from the index ...`
   );
 
-  index = voy.remove(index, { embeddings: addition });
+  index = voy.remove({ embeddings: addition });
   logIndex(
     `🕸️ Voy is searching for the nearest neighbors of "${initialQuery}" ...`
   );
@@ -115,7 +115,7 @@ const main = async () => {
   logIndex(`🕸️ Voy is indexed ✔️ ...`);
   logIndex("🕸️ --- Voy similarity search result ---");
 
-  voy.search(index, q.result, 3).neighbors.forEach((result, i) => {
+  voy.search(q.result, 3).neighbors.forEach((result, i) => {
     if (i === 0) {
       logIndex(`🥇  "${result.title}"`);
     } else if (i === 1) {
@@ -130,7 +130,7 @@ const main = async () => {
   logIndex("⮐");
   logIndex(`🕸️ Voy is clearing the index ...`);
 
-  index = voy.clear(index);
+  index = voy.clear();
 
   logIndex(`🕸️ Voy is cleared ✔️ ...`);
   logIndex(`✨ Done in ${timer.stop()}s`);
