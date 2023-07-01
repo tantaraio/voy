@@ -38,6 +38,76 @@ pnpm add voy-search
 
 ## APIs
 
+### `class Voy`
+
+The Voy class encapsulates an index and exposes all the public methods Voy has to offer.
+
+```ts
+class Voy {
+  /**
+   * By instantiating with a resource, Voy will construct the index. If the resource is
+   * absent, it will construct an empty index. Calling Voy.index() later on will override
+   * the empty index.
+   *
+   * @param {Resource | undefined} resource
+   */
+  constructor(resource?: Resource);
+  /**
+   * Index given resource. Voy.index() is designed for the use case where an Voy instance
+   * is instantiated without a resource. It will override the existing index. If you'd like
+   * to keep the existing index, you can use Voy.add() to add your resource the index.
+   *
+   * @param {Resource} resource
+   */
+  index(resource: Resource): void;
+  /**
+   * Search top k results with given query embedding.
+   *
+   * @param {Float32Array} query: Query Embedding
+   * @param {number} k: Number of items in the search result
+   * @returns {SearchResult}
+   */
+  search(query: Float32Array, k: number): SearchResult;
+  /**
+   * Add given resource to the index.
+   *
+   * @param {Resource} resource
+   */
+  add(resource: Resource): void;
+  /**
+   * Remove given resource from the index.
+   *
+   * @param {Resource} resource
+   */
+  remove(resource: Resource): void;
+  /**
+   * Remove all resources from the index.
+   */
+  clear(): void;
+}
+
+interface Resource {
+  embeddings: Array<{
+    id: string; // id of the resource
+    title: string; // title of the resource
+    url: string; // url to the resource
+    embeddings: number[]; // embeddings of the resource
+  }>;
+}
+
+interface SearchResult {
+  neighbors: Array<{
+    id: string; // id of the resource
+    title: string; // title of the resource
+    url: string; // url to the resource
+  }>;
+}
+```
+
+### Individual Functions
+
+Besides the Voy class, Voy also exports all the instance methods as individual functions.
+
 #### `index(resource: Resource): SerializedIndex`
 
 It indexes the given resource and returns a serialized index.
@@ -160,7 +230,7 @@ As of now, voy relies on libraries like [`web-ai`][web-ai] to generate embedding
 ```js
 import { TextModel } from "@visheratin/web-ai";
 
-const voy = await import("voy-search");
+const { Voy } = await import("voy-search");
 
 const phrases = [
   "That is a very happy Person",
@@ -181,11 +251,11 @@ const data = processed.map(({ result }, i) => ({
   embeddings: result,
 }));
 const resource = { embeddings: data };
-const index = voy.index(resource);
+const index = new Voy(resource);
 
 // Perform similarity search for a query embeddings
 const q = await model.process(query);
-const result = voy.search(index, q.result, 1);
+const result = index.search(q.result, 1);
 
 // Display search result
 result.neighbors.forEach((result) =>
