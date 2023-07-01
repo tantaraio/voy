@@ -53,9 +53,9 @@ class Voy {
    */
   constructor(resource?: Resource);
   /**
-   * Index given resource. Voy.index() is designed for the use case where an Voy instance
+   * Index given resource. Voy.index() is designed for the use case where a Voy instance
    * is instantiated without a resource. It will override the existing index. If you'd like
-   * to keep the existing index, you can use Voy.add() to add your resource the index.
+   * to keep the existing index, you can use Voy.add() to add your resource to the index.
    *
    * @param {Resource} resource
    */
