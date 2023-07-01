@@ -137,6 +137,22 @@ interface Resource {
 type SerializedIndex = string;
 ```
 
+#### `clear(index: SerializedIndex): SerializedIndex`
+
+It removes all items from the index and returns an empty serialized index.
+
+**Parameter**
+
+```ts
+type SerializedIndex = string;
+```
+
+**Return**
+
+```ts
+type SerializedIndex = string;
+```
+
 ## Usage
 
 As of now, voy relies on libraries like [`web-ai`][web-ai] to generate embeddings for text:
