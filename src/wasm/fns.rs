@@ -10,7 +10,7 @@ pub fn index(resource: Resource) -> SerializedIndex {
 
     let index = engine::index(resource);
     match index {
-        Ok(tree) => serde_json::to_string(&tree).unwrap(),
+        Ok(idx) => serde_json::to_string(&idx).unwrap(),
         _ => "".to_owned(),
     }
 }

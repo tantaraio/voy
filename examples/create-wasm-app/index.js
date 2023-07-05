@@ -128,9 +128,34 @@ const main = async () => {
   });
 
   logIndex("⮐");
+  logIndex(`🕸️ Voy is serializing ...`);
+
+  const serialized = voy.serialize();
+  logIndex(`🕸️ Voy is serialized ✔️ ...`);
+
+  logIndex(`🕸️ Voy is deserializing ...`);
+
+  const deserializedVoy = Voy.deserialize(serialized);
+  logIndex(`🕸️ Voy is deserialized ✔️ ...`);
+
+  logIndex("🕸️ --- Deserialized Voy similarity search result ---");
+  deserializedVoy.search(q.result, 3).neighbors.forEach((result, i) => {
+    if (i === 0) {
+      logIndex(`🥇  "${result.title}"`);
+    } else if (i === 1) {
+      logIndex(`🥈  "${result.title}"`);
+    } else if (i === 2) {
+      logIndex(`🥉  "${result.title}"`);
+    } else {
+      logIndex(`🕸️  "${result.title}"`);
+    }
+  });
+
+  logIndex("⮐");
   logIndex(`🕸️ Voy is clearing the index ...`);
 
-  index = voy.clear();
+  voy.clear();
+  deserializedVoy.clear();
 
   logIndex(`🕸️ Voy is cleared ✔️ ...`);
   logIndex(`✨ Done in ${timer.stop()}s`);

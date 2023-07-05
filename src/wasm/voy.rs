@@ -1,5 +1,5 @@
 use crate::utils::set_panic_hook;
-use crate::{engine, Neighbor, NumberOfResult, Query, Resource, SearchResult};
+use crate::{engine, Neighbor, NumberOfResult, Query, Resource, SearchResult, SerializedIndex};
 
 use wasm_bindgen::prelude::*;
 
@@ -19,6 +19,15 @@ impl Voy {
             _ => Resource { embeddings: vec![] },
         };
         let index = engine::index(resource).unwrap();
+        Voy { index }
+    }
+
+    pub fn serialize(&self) -> SerializedIndex {
+        serde_json::to_string(&self.index).unwrap()
+    }
+
+    pub fn deserialize(serialized_index: SerializedIndex) -> Voy {
+        let index: engine::Index = serde_json::from_str(&serialized_index).unwrap();
         Voy { index }
     }
 
