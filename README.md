@@ -48,7 +48,6 @@ class Voy {
    * By instantiating with a resource, Voy will construct the index. If the resource is
    * absent, it will construct an empty index. Calling Voy.index() later on will override
    * the empty index.
-   *
    * @param {Resource | undefined} resource
    */
   constructor(resource?: Resource);
@@ -56,13 +55,11 @@ class Voy {
    * Index given resource. Voy.index() is designed for the use case where a Voy instance
    * is instantiated without a resource. It will override the existing index. If you'd like
    * to keep the existing index, you can use Voy.add() to add your resource to the index.
-   *
    * @param {Resource} resource
    */
   index(resource: Resource): void;
   /**
    * Search top k results with given query embedding.
-   *
    * @param {Float32Array} query: Query Embedding
    * @param {number} k: Number of items in the search result
    * @returns {SearchResult}
@@ -70,13 +67,11 @@ class Voy {
   search(query: Float32Array, k: number): SearchResult;
   /**
    * Add given resource to the index.
-   *
    * @param {Resource} resource
    */
   add(resource: Resource): void;
   /**
    * Remove given resource from the index.
-   *
    * @param {Resource} resource
    */
   remove(resource: Resource): void;
@@ -84,6 +79,17 @@ class Voy {
    * Remove all resources from the index.
    */
   clear(): void;
+  /**
+   * Serialize a Voy instance.
+   * @returns {string}
+   */
+  serialize(): string;
+  /**
+   * Deserialize a serialized index into a Voy instance.
+   * @param {string} serialized_index
+   * @returns {Voy}
+   */
+  static deserialize(serialized_index: string): Voy;
 }
 
 interface Resource {
