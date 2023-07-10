@@ -46,7 +46,10 @@ pub fn index(resource: Resource) -> anyhow::Result<Index> {
         .iter()
         .enumerate()
         .for_each(|(index, resource)| {
-            let query: &[f32; 768] = &resource.embeddings[..768].try_into().unwrap();
+            let mut embeddings = resource.embeddings.clone();
+            embeddings.resize(768, 0.0);
+
+            let query: &[f32; 768] = &embeddings.try_into().unwrap();
             // "item" holds the position of the document in "data"
             tree.add(query, index)
         });
@@ -55,10 +58,12 @@ pub fn index(resource: Resource) -> anyhow::Result<Index> {
 }
 
 pub fn search<'a>(index: &'a Index, query: &'a Query, k: usize) -> anyhow::Result<Vec<Document>> {
-    let query: Vec<f32> = match query {
+    let mut query: Vec<f32> = match query {
         Query::Embeddings(q) => q.to_owned(),
     };
-    let query: &[f32; 768] = &query[..768].try_into().unwrap();
+    query.resize(768, 0.0);
+
+    let query: &[f32; 768] = &query.try_into().unwrap();
     let neighbors = index.tree.nearest_n(query, k, &squared_euclidean);
 
     let mut result: Vec<Document> = vec![];
@@ -73,7 +78,10 @@ pub fn search<'a>(index: &'a Index, query: &'a Query, k: usize) -> anyhow::Resul
 
 pub fn add<'a>(index: &'a mut Index, resource: &'a Resource) {
     for item in &resource.embeddings {
-        let query: &[f32; 768] = item.embeddings[..768].try_into().unwrap();
+        let mut embeddings = item.embeddings.clone();
+        embeddings.resize(768, 0.0);
+
+        let query: &[f32; 768] = &embeddings.try_into().unwrap();
         let doc = Document {
             id: item.id.to_owned(),
             title: item.title.to_owned(),
@@ -86,7 +94,10 @@ pub fn add<'a>(index: &'a mut Index, resource: &'a Resource) {
 
 pub fn remove<'a>(index: &'a mut Index, resource: &'a Resource) {
     for item in &resource.embeddings {
-        let query: &[f32; 768] = item.embeddings[..768].try_into().unwrap();
+        let mut embeddings = item.embeddings.clone();
+        embeddings.resize(768, 0.0);
+
+        let query: &[f32; 768] = &embeddings.try_into().unwrap();
         let doc_index = index.data.iter().position(|x| x.id == item.id);
 
         if let Some(i) = doc_index {

@@ -59,6 +59,7 @@ export default function ServerSide() {
                   {results.map((result, i) => {
                     return (
                       <p
+                        key={result.title}
                         className={i === 0 ? styles.primary : styles.secondary}
                       >
                         {result.title}

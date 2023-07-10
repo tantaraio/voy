@@ -17,7 +17,7 @@ export default async function handler(
   const indexed = index({ embeddings });
 
   const q = await model.embed([searchQuery.toString()]);
-  const result = search(indexed, new Float32Array(q.arraySync()[0]), 5);
+  const result = search(indexed, q.arraySync()[0] as any, 4);
 
   res.status(200).json(result);
 }
