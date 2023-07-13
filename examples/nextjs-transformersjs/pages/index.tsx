@@ -1,4 +1,4 @@
-import { pipeline } from "@xenova/transformers";
+import { Pipeline, pipeline } from "@xenova/transformers";
 import { Inter } from "next/font/google";
 import { useCallback, useEffect, useState } from "react";
 import { SearchResult, Voy } from "voy-search";
@@ -13,11 +13,15 @@ const phrases = [
 
 const query = "Is it summer yet?";
 
-async function calculateEmbeddings(text: string) {
+async function getExtractor() {
   const extractor = await pipeline(
     "feature-extraction",
     "Xenova/all-MiniLM-L6-v2"
   );
+  return extractor;
+}
+
+async function extract(extractor: Pipeline, text: string) {
   const result = await extractor(text, { pooling: "mean", normalize: true });
   return result.data;
 }
@@ -25,8 +29,10 @@ async function calculateEmbeddings(text: string) {
 export default function Home() {
   const [result, setResult] = useState<SearchResult>();
 
-  const run = useCallback(async () => {
-    const embeddings = await Promise.all(phrases.map(calculateEmbeddings));
+  const run = useCallback(async (extractor: Pipeline) => {
+    const embeddings = await Promise.all(
+      phrases.map((phrase) => extract(extractor, phrase))
+    );
 
     const data = embeddings.map((embeddings, i) => ({
       id: String(i),
@@ -37,7 +43,7 @@ export default function Home() {
 
     const index = new Voy({ embeddings: data });
 
-    const q = await calculateEmbeddings(query);
+    const q = await extract(extractor, query);
 
     const result = index.search(q, 1);
 
@@ -45,7 +51,7 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    run();
+    getExtractor().then(run);
   }, []);
 
   return (
