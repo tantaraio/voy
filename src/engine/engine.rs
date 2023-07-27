@@ -49,14 +49,14 @@ pub fn index(resource: Resource) -> anyhow::Result<Index> {
     resource
         .embeddings
         .iter()
-        .zip(&data_vec)
+        .zip(data_vec.iter())
         .for_each(|(resource, data)| {
             let mut embeddings = resource.embeddings.clone();
             embeddings.resize(768, 0.0);
 
             let query: &[f32; 768] = &embeddings.try_into().unwrap();
             // "item" holds the position of the document in "data"
-            tree.add(query, data.0.clone());
+            tree.add(query, data.0);
         });
 
     Ok(Index { tree, data })
