@@ -45,7 +45,7 @@ export default function Home() {
 
     const q = await extract(extractor, query);
 
-    const result = index.search(q, 1);
+    const result = index.search(q, 3);
 
     setResult(result);
   }, []);
