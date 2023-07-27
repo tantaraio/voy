@@ -1,9 +1,11 @@
 use crate::Resource;
 use kiddo::float::{distance::squared_euclidean, kdtree::KdTree};
 use serde::{Deserialize, Serialize};
-use std::convert::TryInto;
+use std::{collections::HashMap, convert::TryInto};
 
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+use super::hash;
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
 
 pub struct Document {
     pub id: String,
@@ -18,18 +20,18 @@ pub enum Query {
     Embeddings(Vec<f32>),
 }
 
-pub type Tree = KdTree<f32, usize, 768, 32, u16>;
+pub type Tree = KdTree<f32, u64, 768, 32, u16>;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Index {
     // "IDX" is set to u16 to optimize CPU cache.
     // Read more: https://github.com/sdd/kiddo/blob/7a0bb6ecce39963b27ffdca913c6be7a265e3523/src/types.rs#L35
     pub tree: Tree,
-    pub data: Vec<Document>,
+    pub data: HashMap<u64, Document>,
 }
 
 pub fn index(resource: Resource) -> anyhow::Result<Index> {
-    let data: Vec<Document> = resource
+    let data_vec: Vec<(u64, Document)> = resource
         .embeddings
         .iter()
         .map(|resource| Document {
@@ -37,21 +39,24 @@ pub fn index(resource: Resource) -> anyhow::Result<Index> {
             title: resource.title.to_owned(),
             url: resource.url.to_owned(),
         })
+        .map(|document| (hash(&document), document))
         .collect();
+
+    let data: HashMap<u64, Document> = data_vec.clone().into_iter().collect();
 
     let mut tree: Tree = KdTree::new();
 
     resource
         .embeddings
         .iter()
-        .enumerate()
-        .for_each(|(index, resource)| {
+        .zip(data_vec.iter())
+        .for_each(|(resource, data)| {
             let mut embeddings = resource.embeddings.clone();
             embeddings.resize(768, 0.0);
 
             let query: &[f32; 768] = &embeddings.try_into().unwrap();
             // "item" holds the position of the document in "data"
-            tree.add(query, index)
+            tree.add(query, data.0);
         });
 
     Ok(Index { tree, data })
@@ -69,8 +74,10 @@ pub fn search<'a>(index: &'a Index, query: &'a Query, k: usize) -> anyhow::Resul
     let mut result: Vec<Document> = vec![];
 
     for neighbor in &neighbors {
-        let doc = index.data[neighbor.item].to_owned();
-        result.push(doc);
+        let doc = index.data.get(&neighbor.item);
+        if let Some(document) = doc {
+            result.push(document.to_owned());
+        }
     }
 
     Ok(result)
@@ -87,8 +94,9 @@ pub fn add<'a>(index: &'a mut Index, resource: &'a Resource) {
             title: item.title.to_owned(),
             url: item.url.to_owned(),
         };
-        index.data.push(doc);
-        index.tree.add(query, index.data.len() - 1);
+        let id = hash(&doc);
+        index.data.insert(id, doc);
+        index.tree.add(query, id);
     }
 }
 
@@ -98,12 +106,14 @@ pub fn remove<'a>(index: &'a mut Index, resource: &'a Resource) {
         embeddings.resize(768, 0.0);
 
         let query: &[f32; 768] = &embeddings.try_into().unwrap();
-        let doc_index = index.data.iter().position(|x| x.id == item.id);
+        let id = hash(&Document {
+            id: item.id.to_owned(),
+            title: item.title.to_owned(),
+            url: item.url.to_owned(),
+        });
 
-        if let Some(i) = doc_index {
-            index.tree.remove(query, i);
-            index.data.remove(i);
-        }
+        index.tree.remove(query, id);
+        index.data.remove(&id);
     }
 }
 
@@ -111,5 +121,9 @@ pub fn clear<'a>(index: &'a mut Index) {
     // simply assign a new tree and data because traversing the nodes to perform removal is the only alternative.
     // Kiddo provides only basic removal. See more: https://github.com/sdd/kiddo/issues/76
     index.tree = KdTree::new();
-    index.data = Vec::new();
+    index.data = HashMap::new();
+}
+
+pub fn size<'a>(index: &'a Index) -> usize {
+    index.data.len()
 }

@@ -80,3 +80,11 @@ fn it_clears_all_embeddings_from_index(resource_fixture: Resource) {
     assert_eq!(index.tree.size(), 0);
     assert_eq!(index.data.len(), 0);
 }
+
+#[rstest]
+fn it_returns_the_size_of_index(resource_fixture: Resource) {
+    let index = engine::index(resource_fixture).unwrap();
+    assert_eq!(index.tree.size(), 6);
+    assert_eq!(index.data.len(), 6);
+    assert_eq!(engine::size(&index), 6);
+}

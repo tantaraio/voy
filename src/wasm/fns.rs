@@ -71,5 +71,5 @@ pub fn size(index: SerializedIndex) -> usize {
 
     let index: engine::Index = serde_json::from_str(&index).unwrap();
 
-    index.data.len()
+    engine::size(&index)
 }

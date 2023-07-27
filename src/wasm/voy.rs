@@ -64,6 +64,6 @@ impl Voy {
     }
 
     pub fn size(&self) -> usize {
-        self.index.data.len()
+        engine::size(&self.index)
     }
 }
