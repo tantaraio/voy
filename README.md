@@ -80,6 +80,10 @@ class Voy {
    */
   clear(): void;
   /**
+   * @returns {number}
+   */
+  size(): number;
+  /**
    * Serialize a Voy instance.
    * @returns {string}
    */
@@ -224,6 +228,16 @@ type SerializedIndex = string;
 ```
 
 **Return**
+
+```ts
+type SerializedIndex = string;
+```
+
+#### `size(index: SerializedIndex): number;`
+
+It returns the size of the index.
+
+**Parameter**
 
 ```ts
 type SerializedIndex = string;

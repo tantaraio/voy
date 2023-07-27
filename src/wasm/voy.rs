@@ -62,4 +62,8 @@ impl Voy {
     pub fn clear(&mut self) {
         engine::clear(&mut self.index);
     }
+
+    pub fn size(&self) -> usize {
+        self.index.data.len()
+    }
 }

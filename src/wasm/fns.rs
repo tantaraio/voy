@@ -64,3 +64,12 @@ pub fn clear(index: SerializedIndex) -> SerializedIndex {
 
     serde_json::to_string(&index).unwrap()
 }
+
+#[wasm_bindgen]
+pub fn size(index: SerializedIndex) -> usize {
+    set_panic_hook();
+
+    let index: engine::Index = serde_json::from_str(&index).unwrap();
+
+    index.data.len()
+}
