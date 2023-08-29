@@ -20,7 +20,9 @@ pub enum Query {
     Embeddings(Vec<f32>),
 }
 
-pub type Tree = KdTree<f32, u64, 768, 32, u16>;
+const BUCKET_SIZE: usize = 256;
+
+pub type Tree = KdTree<f32, u64, 768, BUCKET_SIZE, u16>;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Index {
