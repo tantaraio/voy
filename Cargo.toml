@@ -1,6 +1,6 @@
 [package]
 name = "voy-search"
-version = "0.6.2"
+version = "0.6.3"
 authors = ["Daw-Chih Liou <dawochih.liou@gmail.com>"]
 edition = "2018"
 description = "a vector similarity search engine in WASM"

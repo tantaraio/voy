@@ -20,7 +20,7 @@ pub enum Query {
     Embeddings(Vec<f32>),
 }
 
-const BUCKET_SIZE: usize = 256;
+const BUCKET_SIZE: usize = 32;
 
 pub type Tree = KdTree<f32, u64, 768, BUCKET_SIZE, u16>;
 
