@@ -20,7 +20,10 @@ pub enum Query {
     Embeddings(Vec<f32>),
 }
 
-const BUCKET_SIZE: usize = 256;
+// Wasm has a 4GB memory limit. Should make sure the bucket size and capacity
+// doesn't exceed it and cause stack overflow.
+// More detail: https://v8.dev/blog/4gb-wasm-memory
+const BUCKET_SIZE: usize = 32;
 
 pub type Tree = KdTree<f32, u64, 768, BUCKET_SIZE, u16>;
 
